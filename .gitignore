@@ -1,0 +1,17 @@
+storage/*
+!storage/.gitkeep
+*.pyc
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+.env
+*.egg-info/
+dist/
+build/
+.coverage
+htmlcov/
+.hf_cache/
+*.db

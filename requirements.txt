@@ -1,0 +1,22 @@
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+python-multipart==0.0.20
+celery[redis]==5.5.2
+redis==5.2.1
+sqlalchemy==2.0.40
+psycopg2-binary==2.9.10
+pgvector==0.4.1
+pydantic==2.11.3
+pydantic-settings==2.8.1
+python-dateutil==2.9.0.post0
+pdfplumber==0.11.6
+reportlab==4.4.0
+transformers==4.51.3
+# torch is installed separately in the Dockerfile from the CPU wheel index
+Pillow==11.2.1
+sentence-transformers==4.1.0
+llama-index-core==0.12.33
+llama-index-embeddings-huggingface==0.5.4
+pytest==8.3.5
+httpx==0.28.1
+testcontainers==4.10.0

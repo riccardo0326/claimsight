@@ -1,0 +1,65 @@
+{
+  "policy_id": "POL-2024-0098213",
+  "clauses": [
+    {
+      "clause_id": "COL-001",
+      "clause_type": "collision",
+      "text": "Collision coverage pays for direct and accidental loss to your covered auto caused by collision with another object or by upset of the auto, subject to the deductible shown on the declarations page.",
+      "page_number": 2
+    },
+    {
+      "clause_id": "COL-002",
+      "clause_type": "collision",
+      "text": "Under collision coverage, we will pay the lesser of the actual cash value of the damaged property or the amount necessary to repair or replace it with other property of like kind and quality.",
+      "page_number": 2
+    },
+    {
+      "clause_id": "COM-001",
+      "clause_type": "comprehensive",
+      "text": "Comprehensive coverage (other than collision) pays for loss to your covered auto caused by fire, theft, vandalism, falling objects, explosion, earthquake, windstorm, hail, water, flood, or contact with a bird or animal.",
+      "page_number": 3
+    },
+    {
+      "clause_id": "COM-002",
+      "clause_type": "comprehensive",
+      "text": "Glass breakage is covered under comprehensive coverage unless it occurs as a result of a collision, in which case collision coverage applies if purchased.",
+      "page_number": 3
+    },
+    {
+      "clause_id": "LIA-001",
+      "clause_type": "liability",
+      "text": "Liability coverage pays damages for bodily injury or property damage for which any insured becomes legally responsible because of an auto accident, up to the liability limits shown on the declarations.",
+      "page_number": 4
+    },
+    {
+      "clause_id": "LIA-002",
+      "clause_type": "liability",
+      "text": "We will settle or defend, as we consider appropriate, any claim or suit asking for these damages. Our duty to settle or defend ends when the liability limit for this coverage has been exhausted.",
+      "page_number": 4
+    },
+    {
+      "clause_id": "EXC-001",
+      "clause_type": "exclusion",
+      "text": "We do not provide coverage for any insured who intentionally causes bodily injury or property damage. Intentional acts and fraud void coverage under this policy.",
+      "page_number": 5
+    },
+    {
+      "clause_id": "EXC-002",
+      "clause_type": "exclusion",
+      "text": "Coverage does not apply to damage due to wear and tear, freezing, mechanical or electrical breakdown, or road damage to tires, unless the damage is the result of other loss covered by this policy.",
+      "page_number": 5
+    },
+    {
+      "clause_id": "CLM-001",
+      "clause_type": "claims_procedure",
+      "text": "In the event of an accident or loss, you must promptly notify us or our authorized agent, providing the time, place, and circumstances of the accident, and the names of any injured persons and witnesses.",
+      "page_number": 6
+    },
+    {
+      "clause_id": "CLM-002",
+      "clause_type": "claims_procedure",
+      "text": "A person seeking coverage must cooperate with us in the investigation, settlement, or defense of any claim or suit, and must submit to examination under oath when reasonably requested.",
+      "page_number": 6
+    }
+  ]
+}

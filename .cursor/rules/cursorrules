@@ -1,0 +1,30 @@
+# Cursor Rules — ClaimSight
+
+## 0. Mandatory references (read BEFORE changing contracts or agents)
+- `docs/PROJECT_SPEC.md` — product/agent contracts (§6 is authoritative)
+- `docs/ARCHITECTURE.md` — system architecture and data flow
+- `docs/DECISIONS.md` — locked tradeoffs and deliberate deviations
+
+If a request conflicts with these files, flag it instead of guessing.
+Never "fix" behavior that is explicitly recorded in `DECISIONS.md`
+back to an older wording of the spec without updating that decision log.
+
+## 1. Scope discipline
+- Implement only the slice described in the current task prompt.
+- Do not stub later agents (Vision, RAG, Fraud/Risk, Adjudicator), LangGraph,
+  Langfuse, or the frontend unless the task asks for them.
+
+## 2. Stack (locked — see PROJECT_SPEC §5)
+FastAPI · Celery · Redis · Postgres (+ pgvector later) · SQLAlchemy ·
+Hugging Face Transformers · LlamaIndex (RAG slice) · LangGraph (orchestration
+slice) · Langfuse (observability slice) · Docker Compose.
+
+Do not substitute without a new entry in `docs/DECISIONS.md`.
+
+## 3. Coding norms
+- Concise, senior-engineer fixes; no drive-by refactors outside the task.
+- Pydantic models are the agent I/O contracts — keep them aligned with §6 and
+  `DECISIONS.md`.
+- Prefer honest `None` / empty over hallucinated extractions.
+- Tests: default `pytest` must not require Docker or network beyond optional
+  `-m hf` model loads.

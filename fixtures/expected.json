@@ -1,0 +1,29 @@
+{
+  "policy_id": "POL-2024-0098213",
+  "coverage_limits": {
+    "collision": 50000.0,
+    "comprehensive": 25000.0,
+    "liability": 100000.0
+  },
+  "deductible": 1000.0,
+  "vin": "1HGCM82633A004352",
+  "incident_date": "2024-03-14",
+  "line_items": [
+    {
+      "description": "Front bumper replacement",
+      "cost": 850.0
+    },
+    {
+      "description": "Headlight assembly",
+      "cost": 420.5
+    },
+    {
+      "description": "Labor - body repair",
+      "cost": 682.5
+    },
+    {
+      "description": "Paint and materials",
+      "cost": 310.0
+    }
+  ]
+}

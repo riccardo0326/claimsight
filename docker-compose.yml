@@ -1,0 +1,82 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: claimsight
+      POSTGRES_PASSWORD: claimsight
+      POSTGRES_DB: claimsight
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U claimsight -d claimsight"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      DB_URL: postgresql+psycopg2://claimsight:claimsight@postgres:5432/claimsight
+      REDIS_URL: redis://redis:6379/0
+      STORAGE_DIR: /data/storage
+      DOC_QA_MODEL: impira/layoutlm-document-qa
+      DOC_QA_MIN_CONFIDENCE: "0.5"
+      EMBEDDING_MODEL: sentence-transformers/all-MiniLM-L6-v2
+      RAG_TOP_K: "5"
+      MAX_UPLOAD_MB: "10"
+      CELERY_TASK_ALWAYS_EAGER: "false"
+      HF_HOME: /cache/huggingface
+    volumes:
+      - claim_storage:/data/storage
+      - hf_cache:/cache/huggingface
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build: .
+    command: celery -A worker.celery_app.celery_app worker --loglevel=INFO --concurrency=1
+    environment:
+      DB_URL: postgresql+psycopg2://claimsight:claimsight@postgres:5432/claimsight
+      REDIS_URL: redis://redis:6379/0
+      STORAGE_DIR: /data/storage
+      DOC_QA_MODEL: impira/layoutlm-document-qa
+      DOC_QA_MIN_CONFIDENCE: "0.5"
+      EMBEDDING_MODEL: sentence-transformers/all-MiniLM-L6-v2
+      RAG_TOP_K: "5"
+      MAX_UPLOAD_MB: "10"
+      CELERY_TASK_ALWAYS_EAGER: "false"
+      HF_HOME: /cache/huggingface
+    volumes:
+      - claim_storage:/data/storage
+      - hf_cache:/cache/huggingface
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_started
+
+volumes:
+  pgdata:
+  claim_storage:
+  hf_cache:

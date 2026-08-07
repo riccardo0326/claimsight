@@ -1,0 +1,29 @@
+{
+  "policy_id": "POL-OTHER-0001",
+  "clauses": [
+    {
+      "clause_id": "OTHER-COL-001",
+      "clause_type": "collision",
+      "text": "Collision coverage under POL-OTHER-0001 pays for front-end and rear-end collision damage to the insured vehicle after the applicable deductible is met.",
+      "page_number": 1
+    },
+    {
+      "clause_id": "OTHER-COL-002",
+      "clause_type": "collision",
+      "text": "This other-policy collision clause states that bumper and body-panel repairs from a collision event are covered only when reported within 30 days.",
+      "page_number": 1
+    },
+    {
+      "clause_id": "OTHER-EXC-001",
+      "clause_type": "exclusion",
+      "text": "POL-OTHER-0001 excludes racing, track use, and any collision occurring while the vehicle is used as a public or livery conveyance.",
+      "page_number": 2
+    },
+    {
+      "clause_id": "OTHER-CLM-001",
+      "clause_type": "claims_procedure",
+      "text": "Claims under POL-OTHER-0001 must be filed through the other-carrier portal and include a police report for any collision over $2,000.",
+      "page_number": 2
+    }
+  ]
+}
