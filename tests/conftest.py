@@ -20,6 +20,7 @@ POLICY_PDF = FIXTURES_DIR / "sample_policy.pdf"
 ESTIMATE_PDF = FIXTURES_DIR / "sample_estimate.pdf"
 SAMPLE_CLAUSES = FIXTURES_DIR / "sample_policy_clauses.json"
 OTHER_CLAUSES = FIXTURES_DIR / "other_policy_clauses.json"
+SYNTHETIC_IMAGES = sorted((FIXTURES_DIR / "images").glob("synthetic_*.jpg"))
 
 
 @pytest.fixture(scope="session")
@@ -47,6 +48,14 @@ def policy_pdf() -> Path:
 def estimate_pdf() -> Path:
     assert ESTIMATE_PDF.exists(), "Run: python fixtures/generate_fixtures.py"
     return ESTIMATE_PDF
+
+
+@pytest.fixture(scope="session")
+def synthetic_images() -> list[Path]:
+    assert len(SYNTHETIC_IMAGES) == 3, (
+        "Run: python fixtures/generate_image_fixtures.py"
+    )
+    return SYNTHETIC_IMAGES
 
 
 @pytest.fixture
@@ -82,9 +91,14 @@ def _patch_fake_docvqa(monkeypatch, fake_extractor):
     )
 
 
-@pytest.fixture
-def client(tmp_path, monkeypatch, fake_extractor):
-    """FastAPI TestClient with SQLite + eager Celery + fake DocVQA + stubbed RAG."""
+def _make_api_client(
+    tmp_path,
+    monkeypatch,
+    fake_extractor,
+    *,
+    stub_vision: bool,
+):
+    """Shared FastAPI TestClient setup (SQLite + eager Celery + fake DocVQA)."""
     db_path = tmp_path / "test.db"
     storage_dir = tmp_path / "storage"
     storage_dir.mkdir()
@@ -102,6 +116,9 @@ def client(tmp_path, monkeypatch, fake_extractor):
         "worker.tasks.run_rag_agent",
         lambda **_kwargs: RAGOutput(retrieved_clauses=[]),
     )
+    if stub_vision:
+        # Keep default pytest fast — Vision HF models are behind pytest -m hf.
+        monkeypatch.setattr("worker.tasks.run_vision_agent", lambda _paths: None)
 
     Base.metadata.drop_all(bind=db_session.engine)
     init_db()
@@ -112,6 +129,22 @@ def client(tmp_path, monkeypatch, fake_extractor):
         yield test_client
 
     get_settings.cache_clear()
+
+
+@pytest.fixture
+def client(tmp_path, monkeypatch, fake_extractor):
+    """FastAPI TestClient with SQLite + eager Celery + fake DocVQA + stubbed RAG/Vision."""
+    yield from _make_api_client(
+        tmp_path, monkeypatch, fake_extractor, stub_vision=True
+    )
+
+
+@pytest.fixture
+def vision_client(tmp_path, monkeypatch, fake_extractor):
+    """Like client, but runs the real Vision Agent (use with @pytest.mark.hf)."""
+    yield from _make_api_client(
+        tmp_path, monkeypatch, fake_extractor, stub_vision=False
+    )
 
 
 @pytest.fixture(scope="session")

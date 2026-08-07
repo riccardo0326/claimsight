@@ -1,5 +1,7 @@
 storage/*
 !storage/.gitkeep
+fixtures/images/real/*
+!fixtures/images/real/.gitkeep
 *.pyc
 __pycache__/
 .pytest_cache/

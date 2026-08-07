@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 
 from agents.document_agent import run_document_agent
 from agents.rag_agent import run_rag_agent
+from agents.vision_agent import run_vision_agent
 from db.models import Claim, ClaimStatus
 from db import session as db_session
 from worker.celery_app import celery_app
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 @celery_app.task(name="worker.tasks.process_claim", bind=True, max_retries=0)
 def process_claim(self, claim_id: str) -> dict:
-    """Load claim, run Document Agent then RAG Agent, persist result or failure."""
+    """Load claim, run Document → Vision → RAG, persist result or failure."""
     db_session.ensure_engine()
     assert db_session.SessionLocal is not None
     db = db_session.SessionLocal()
@@ -43,6 +44,9 @@ def process_claim(self, claim_id: str) -> dict:
         output, meta = run_document_agent(policy_path, estimate_path)
         doc_dump = output.model_dump(mode="json")
 
+        image_paths = claim.input_paths.get("damage_photos") or []
+        vision_out = run_vision_agent(image_paths) if image_paths else None
+
         rag_out = run_rag_agent(
             policy_id=output.policy_id or "",
             narrative=claim.narrative or "",
@@ -53,6 +57,7 @@ def process_claim(self, claim_id: str) -> dict:
         claim.result = {
             "document_agent": doc_dump,
             "extraction_meta": meta,
+            "vision": vision_out.model_dump(mode="json") if vision_out else None,
             "rag": rag_out.model_dump(mode="json"),
         }
         claim.status = ClaimStatus.completed

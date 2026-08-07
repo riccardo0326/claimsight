@@ -4,6 +4,10 @@ from __future__ import annotations
 
 import time
 
+import pytest
+
+from agents.schemas import VisionOutput
+
 
 def test_submit_and_poll_until_completed(client, policy_pdf, estimate_pdf, expected):
     files = {
@@ -41,6 +45,46 @@ def test_submit_and_poll_until_completed(client, policy_pdf, estimate_pdf, expec
     assert doc["line_items"] == expected["line_items"]
     assert "extraction_meta" in result
     assert "rag" in result
+    # No damage photos → vision is null (not an empty object).
+    assert result.get("vision") is None
+
+
+@pytest.mark.hf
+def test_submit_with_damage_photos_includes_vision(
+    vision_client, policy_pdf, estimate_pdf, synthetic_images
+):
+    files = [
+        ("policy_pdf", ("sample_policy.pdf", policy_pdf.read_bytes(), "application/pdf")),
+        ("estimate_pdf", ("sample_estimate.pdf", estimate_pdf.read_bytes(), "application/pdf")),
+    ]
+    for path in synthetic_images:
+        files.append(
+            ("damage_photos", (path.name, path.read_bytes(), "image/jpeg")),
+        )
+
+    create = vision_client.post("/claims", files=files)
+    assert create.status_code == 202, create.text
+    claim_id = create.json()["claim_id"]
+
+    result = None
+    status = None
+    for _ in range(20):
+        resp = vision_client.get(f"/claims/{claim_id}")
+        assert resp.status_code == 200
+        payload = resp.json()
+        status = payload["status"]
+        result = payload["result"]
+        if status in {"completed", "failed"}:
+            break
+        time.sleep(0.05)
+
+    assert status == "completed", f"status={status} result={result}"
+    assert result is not None
+    assert result.get("vision") is not None
+    vision = VisionOutput.model_validate(result["vision"])
+    assert isinstance(vision.low_confidence, bool)
+    assert isinstance(vision.detections, list)
+    assert isinstance(vision.vqa_answers, dict)
 
 
 def test_submit_with_narrative_retrieves_scoped_clauses(

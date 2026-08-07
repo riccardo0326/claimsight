@@ -39,3 +39,21 @@ class RAGOutput(BaseModel):
     """
 
     retrieved_clauses: list[RetrievedClause] = Field(default_factory=list)
+
+
+class Detection(BaseModel):
+    label: str
+    confidence: float
+    image_path: str
+
+
+class VisionOutput(BaseModel):
+    """Vision Agent contract (Slice 3). See DECISIONS.md D14 for deviations
+    from PROJECT_SPEC.md §6.1 (zero-shot models; no bbox; image_path on detections).
+    """
+
+    detections: list[Detection] = Field(default_factory=list)
+    severity_tier: str
+    severity_confidence: float
+    vqa_answers: dict[str, str] = Field(default_factory=dict)
+    low_confidence: bool

@@ -1,17 +1,18 @@
 # ClaimSight
 
-Multi-agent insurance claims triage. This repository currently ships **Slice 1–2**:
-ingestion via FastAPI + Celery, Document Agent field extraction, and a RAG Agent
-that retrieves policy clauses from Postgres + pgvector (hard-filtered by
-`policy_id`).
+Multi-agent insurance claims triage. This repository currently ships **Slices 1–3**:
+ingestion via FastAPI + Celery, Document Agent field extraction, a RAG Agent that
+retrieves policy clauses from Postgres + pgvector (hard-filtered by `policy_id`),
+and a Vision Agent that extracts damage signal from optional claim photos using
+zero-shot Hugging Face models.
 
-Later slices (Vision, Fraud/Risk, Adjudicator, LangGraph, Langfuse, UI)
+Later slices (Fraud/Risk, Adjudicator, LangGraph parallel branching, Langfuse, UI)
 are intentionally out of scope here.
 
 ## Architecture (this slice)
 
 ```
-POST /claims (policy.pdf + estimate.pdf + narrative)
+POST /claims (policy.pdf + estimate.pdf + narrative + optional damage_photos)
         │
         ▼
    FastAPI ──► Postgres (status=pending) ──► Celery/Redis
@@ -22,13 +23,23 @@ POST /claims (policy.pdf + estimate.pdf + narrative)
                                             └─ pdfplumber tables (line items)
                                                     │
                                                     ▼
+                                              Vision Agent  (skipped if no photos)
+                                            ├─ OWL-ViT zero-shot detection
+                                            ├─ CLIP severity classification
+                                            └─ BLIP VQA (fixed yes/no questions)
+                                                    │
+                                                    ▼
                                               RAG Agent
                                             └─ MiniLM embed + pgvector
                                                WHERE policy_id = ?
                                                     │
                                                     ▼
-                              GET /claims/{id}  ◄── completed + document_agent + rag
+                              GET /claims/{id}  ◄── completed + document_agent
+                                                     + vision + rag
 ```
+
+Vision runs **sequentially after** Document Agent for now. True LangGraph parallel
+Vision∥Document branching is a later slice.
 
 ## Prerequisites
 
@@ -38,8 +49,8 @@ POST /claims (policy.pdf + estimate.pdf + narrative)
 
 ## Quick start (Docker)
 
-If upgrading from Slice 1, recreate the Postgres volume once so the pgvector
-image and new columns apply:
+If upgrading from an earlier slice, recreate the Postgres volume once so the
+pgvector image and new columns apply:
 
 ```bash
 docker compose down -v
@@ -78,11 +89,32 @@ curl -X POST http://localhost:8000/claims \
   -F "narrative=Front-end collision damaged the bumper and headlight; please review collision coverage."
 ```
 
+### Submit with damage photos
+
+Images are optional. Repeat `-F "damage_photos=@..."` for each file (`.jpg` / `.png`):
+
+```bash
+curl -X POST http://localhost:8000/claims \
+  -F "policy_pdf=@fixtures/sample_policy.pdf" \
+  -F "estimate_pdf=@fixtures/sample_estimate.pdf" \
+  -F "narrative=Front-end collision; please review damage photos." \
+  -F "damage_photos=@fixtures/images/synthetic_1.jpg" \
+  -F "damage_photos=@fixtures/images/synthetic_2.jpg" \
+  -F "damage_photos=@fixtures/images/synthetic_3.jpg"
+```
+
 Example response:
 
 ```json
 {"claim_id":"…","status":"pending"}
 ```
+
+A claim with **no** photos still completes; `result.vision` is `null`.
+
+**Synthetic fixtures are structural proof only** — they will not produce meaningful
+zero-shot detections. For a live sanity check with real confidences, drop 2–3
+real car-damage photos into `fixtures/images/real/` and follow
+[fixtures/images/README.md](fixtures/images/README.md).
 
 ### Poll for the result
 
@@ -94,6 +126,8 @@ When processing finishes, `status` is `completed` and `result` contains:
 
 - `document_agent` — `DocumentOutput` fields
 - `extraction_meta` — DocVQA confidences / misses
+- `vision` — `VisionOutput` (`detections`, `severity_tier`, `vqa_answers`,
+  `low_confidence`), or `null` when no photos were uploaded
 - `rag.retrieved_clauses` — `[{clause_id, text, similarity_score}, …]` scoped to the claim's `policy_id`
 
 ## Local development / tests
@@ -106,15 +140,16 @@ source .venv/bin/activate
 pip install -r requirements.txt
 pip install -e ".[dev]"
 
-# Generate / refresh synthetic fixture PDFs (already committed)
+# Generate / refresh synthetic fixture PDFs and images (already committed)
 python fixtures/generate_fixtures.py
+python fixtures/generate_image_fixtures.py
 
 # Full suite: Slice 1 tests use SQLite; RAG tests spin up pgvector via testcontainers
-# (Docker required, no GPU)
+# (Docker required, no GPU). Vision HF tests are deselected by default.
 pytest
 ```
 
-Optional real DocVQA smoke test (downloads ~500MB on first run):
+Optional real Hugging Face smoke tests (DocVQA + Vision models; downloads on first run):
 
 ```bash
 pytest -m hf
@@ -124,7 +159,9 @@ pytest -m hf
 
 `fixtures/sample_policy.pdf` and `fixtures/sample_estimate.pdf` are **synthetic**
 documents generated by `fixtures/generate_fixtures.py` (reportlab). Clause JSON
-under `fixtures/*_policy_clauses.json` is also synthetic. No real customer PII.
+under `fixtures/*_policy_clauses.json` is also synthetic. Damage photos under
+`fixtures/images/synthetic_*.jpg` are PIL silhouettes for pipeline smoke tests
+only — see [fixtures/images/README.md](fixtures/images/README.md). No real customer PII.
 
 | Field | Value |
 |-------|-------|
@@ -141,14 +178,19 @@ See [`.env.example`](.env.example). Important variables:
 
 - `DB_URL` — SQLAlchemy URL (Postgres+pgvector in Docker, SQLite for Slice 1 unit tests)
 - `REDIS_URL` — Celery broker + result backend
-- `STORAGE_DIR` — shared volume for uploaded PDFs
+- `STORAGE_DIR` — shared volume for uploaded PDFs and damage photos
 - `DOC_QA_MODEL` — default `impira/layoutlm-document-qa`
 - `DOC_QA_MIN_CONFIDENCE` — answers below this score become `None` (default `0.5`)
 - `EMBEDDING_MODEL` — default `sentence-transformers/all-MiniLM-L6-v2`
 - `RAG_TOP_K` — number of clauses returned (default `5`)
-- `MAX_UPLOAD_MB` — upload size limit (default `10`)
+- `VISION_DETECTION_MODEL` — default `google/owlvit-base-patch32`
+- `VISION_CLASSIFICATION_MODEL` — default `openai/clip-vit-base-patch32`
+- `VISION_VQA_MODEL` — default `Salesforce/blip-vqa-base`
+- `VISION_DETECTION_THRESHOLD` — detection score floor (default `0.15`)
+- `VISION_LOW_CONFIDENCE_THRESHOLD` — sets `low_confidence` on severity (default `0.4`)
+- `MAX_UPLOAD_MB` — upload size limit per file (default `10`)
 
-## Document + RAG notes
+## Document + RAG + Vision notes
 
 - Policy fields use Hugging Face `document-question-answering` with
   `word_boxes` from pdfplumber (no Tesseract OCR required).
@@ -158,6 +200,9 @@ See [`.env.example`](.env.example). Important variables:
   SQLAlchemy + pgvector with a hard `WHERE policy_id = ?` filter.
 - `retrieved_precedents` from the full §6.3 contract is deferred (see
   [docs/DECISIONS.md](docs/DECISIONS.md)).
+- Vision uses zero-shot OWL-ViT / CLIP / BLIP (no fine-tuned car-damage model yet;
+  see D14 in [docs/DECISIONS.md](docs/DECISIONS.md)). Severity across photos uses
+  max-severity-wins.
 - Schema creation uses `Base.metadata.create_all()`; Alembic migrations are
   deferred.
 
@@ -166,3 +211,4 @@ See [`.env.example`](.env.example). Important variables:
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md)
 - [docs/DECISIONS.md](docs/DECISIONS.md)
+- [fixtures/images/README.md](fixtures/images/README.md) — manual Vision verification

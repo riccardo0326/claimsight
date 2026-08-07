@@ -60,3 +60,36 @@ def test_rejects_wrong_content_type(client, policy_pdf, estimate_pdf):
     resp = client.post("/claims", files=files)
     assert resp.status_code == 422
     assert "content type" in resp.json()["detail"]
+
+
+def test_rejects_non_image_damage_photo(client, policy_pdf, estimate_pdf):
+    files = [
+        ("policy_pdf", ("policy.pdf", policy_pdf.read_bytes(), "application/pdf")),
+        ("estimate_pdf", ("estimate.pdf", estimate_pdf.read_bytes(), "application/pdf")),
+        ("damage_photos", ("notes.txt", b"not an image", "text/plain")),
+    ]
+    resp = client.post("/claims", files=files)
+    assert resp.status_code == 422
+    assert "damage_photos" in resp.json()["detail"]
+
+
+def test_rejects_empty_damage_photo(client, policy_pdf, estimate_pdf):
+    files = [
+        ("policy_pdf", ("policy.pdf", policy_pdf.read_bytes(), "application/pdf")),
+        ("estimate_pdf", ("estimate.pdf", estimate_pdf.read_bytes(), "application/pdf")),
+        ("damage_photos", ("empty.jpg", b"", "image/jpeg")),
+    ]
+    resp = client.post("/claims", files=files)
+    assert resp.status_code == 422
+    assert "damage_photos" in resp.json()["detail"]
+
+
+def test_rejects_bad_image_magic_bytes(client, policy_pdf, estimate_pdf):
+    files = [
+        ("policy_pdf", ("policy.pdf", policy_pdf.read_bytes(), "application/pdf")),
+        ("estimate_pdf", ("estimate.pdf", estimate_pdf.read_bytes(), "application/pdf")),
+        ("damage_photos", ("fake.jpg", b"NOT_A_JPEG", "image/jpeg")),
+    ]
+    resp = client.post("/claims", files=files)
+    assert resp.status_code == 422
+    assert "damage_photos" in resp.json()["detail"]
