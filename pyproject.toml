@@ -44,6 +44,6 @@ include = ["agents*", "api*", "db*", "worker*", "rag*"]
 testpaths = ["tests"]
 pythonpath = ["."]
 markers = [
-  "hf: tests that load the real Hugging Face DocVQA model (slow, network on first run)",
+  "hf: tests that load real Hugging Face models — DocVQA / Vision zero-shot (slow, network on first run)",
 ]
 addopts = "-m \"not hf\""

@@ -14,10 +14,13 @@ RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
     && pip install --no-cache-dir -r requirements.txt
 
-# Prefetch DocVQA + embedding model weights so first claim does not stall.
+# Prefetch DocVQA + embedding + Vision model weights so first claim does not stall.
 ENV HF_HOME=/cache/huggingface
 RUN python -c "from transformers import pipeline; pipeline('document-question-answering', model='impira/layoutlm-document-qa')" \
- && python -c "from llama_index.embeddings.huggingface import HuggingFaceEmbedding; HuggingFaceEmbedding(model_name='sentence-transformers/all-MiniLM-L6-v2')"
+ && python -c "from llama_index.embeddings.huggingface import HuggingFaceEmbedding; HuggingFaceEmbedding(model_name='sentence-transformers/all-MiniLM-L6-v2')" \
+ && python -c "from transformers import pipeline; pipeline('zero-shot-object-detection', model='google/owlvit-base-patch32')" \
+ && python -c "from transformers import pipeline; pipeline('zero-shot-image-classification', model='openai/clip-vit-base-patch32')" \
+ && python -c "from transformers import BlipProcessor, BlipForQuestionAnswering; BlipProcessor.from_pretrained('Salesforce/blip-vqa-base'); BlipForQuestionAnswering.from_pretrained('Salesforce/blip-vqa-base')"
 
 COPY . .
 

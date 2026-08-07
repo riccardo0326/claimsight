@@ -134,3 +134,39 @@ PDFs with LlamaIndex splitters.
 
 Proves per-policy retrieval end-to-end. PDF→clause chunking arrives when the
 golden corpus expands beyond hand-authored clauses.
+
+---
+
+## Slice 3 — Vision Agent (2026-08)
+
+### D14. Zero-shot Vision models; no bbox; null when no photos
+
+**Spec / architecture listed:** Object Detection + Image Classification (implying
+fine-tuned or task-specific car-damage models), and
+`VisionOutput.detections: [{label, bbox, confidence}]`.
+
+**Chose for this slice:**
+
+1. **Zero-shot models** — no labeled car-damage dataset or fine-tuning is in
+   scope yet:
+   - Zero-shot object detection: `google/owlvit-base-patch32` with fixed labels
+     `["dent", "scratch", "broken glass", "broken headlight", "deployed airbag",
+     "bumper damage"]`
+   - Zero-shot image classification: `openai/clip-vit-base-patch32` for
+     `severity_tier` with `["minor damage", "moderate damage", "severe damage"]`
+   - VQA: `Salesforce/blip-vqa-base` via `BlipProcessor` +
+     `BlipForQuestionAnswering` (not `pipeline("visual-question-answering")`,
+     which was removed in transformers 5.x) for fixed yes/no diagnostic questions
+2. **Detections omit `bbox`** — contract uses
+   `{label, confidence, image_path}` so output is Adjudicator-ready without
+   requiring box post-processing. Add bbox when a fine-tuned detector lands.
+3. **Severity aggregation: max-severity-wins** — across photos, take the highest
+   tier (`minor < moderate < severe`); `severity_confidence` is that image's CLIP
+   score. Conservative default for triage.
+4. **`result.vision = null`** when no damage photos are uploaded (skip the
+   agent entirely). Empty detections list is valid when photos exist but scores
+   stay below the 0.15 floor.
+
+Do not swap in fine-tuned detectors mid-slice without updating this decision.
+True LangGraph parallel Vision∥Document branching is a later slice; the Celery
+task runs Vision sequentially after Document for now.
