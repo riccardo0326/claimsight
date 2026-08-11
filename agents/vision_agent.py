@@ -17,13 +17,15 @@ from api.config import get_settings
 
 logger = logging.getLogger(__name__)
 
+# OWL-ViT-friendly scene/part phrases. Fine-grained attributes like "dent" /
+# "scratch" / "bumper damage" score << 0.1 on real photos (see scripts/debug_owlvit.py).
 DETECTION_LABELS = [
-    "dent",
-    "scratch",
-    "broken glass",
+    "damaged car",
+    "crashed car",
+    "shattered windshield",
     "broken headlight",
     "deployed airbag",
-    "bumper damage",
+    "broken glass",
 ]
 SEVERITY_LABELS = [
     "minor damage",
@@ -116,15 +118,33 @@ def _normalize_yes_no(raw: str | None) -> str:
     return "unknown"
 
 
+def _owlvit_prompt(label: str) -> str:
+    """OWL-ViT text queries work much better with the CLIP-style template."""
+    article = "an" if label[:1].lower() in "aeiou" else "a"
+    return f"a photo of {article} {label}"
+
+
+def _strip_owlvit_prompt(label: str) -> str:
+    text = label.strip()
+    for prefix in ("a photo of an ", "a photo of a "):
+        if text.lower().startswith(prefix):
+            return text[len(prefix) :].strip()
+    return text
+
+
 def _detect_one(image: Image.Image, image_path: str, threshold: float) -> list[Detection]:
     pipe = _get_detection_pipeline()
-    results = pipe(image, candidate_labels=DETECTION_LABELS)
+    prompts = [_owlvit_prompt(lab) for lab in DETECTION_LABELS]
+    # Pass threshold into the pipeline so HF's default (~0.1) cannot hide scores
+    # we still want to evaluate against vision_detection_threshold.
+    results = pipe(image, candidate_labels=prompts, threshold=threshold)
     if not results:
         return []
 
     scored: list[tuple[str, float]] = []
     for item in results:
-        label = str(item.get("label") or "").strip()
+        raw_label = str(item.get("label") or "").strip()
+        label = _strip_owlvit_prompt(raw_label)
         score = float(item.get("score") or 0.0)
         if label and score >= threshold:
             scored.append((label, score))

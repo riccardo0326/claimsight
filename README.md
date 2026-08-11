@@ -186,7 +186,7 @@ See [`.env.example`](.env.example). Important variables:
 - `VISION_DETECTION_MODEL` — default `google/owlvit-base-patch32`
 - `VISION_CLASSIFICATION_MODEL` — default `openai/clip-vit-base-patch32`
 - `VISION_VQA_MODEL` — default `Salesforce/blip-vqa-base`
-- `VISION_DETECTION_THRESHOLD` — detection score floor (default `0.15`)
+- `VISION_DETECTION_THRESHOLD` — detection score floor (default `0.45`)
 - `VISION_LOW_CONFIDENCE_THRESHOLD` — sets `low_confidence` on severity (default `0.4`)
 - `MAX_UPLOAD_MB` — upload size limit per file (default `10`)
 

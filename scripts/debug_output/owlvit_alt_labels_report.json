@@ -1,0 +1,653 @@
+[
+  {
+    "image": "front_collision.jpg",
+    "sets": {
+      "concrete_nouns": {
+        "global_max": 0.08431732654571533,
+        "per_label_max": {
+          "car": 0.08431732654571533,
+          "headlight": 0.009875000454485416,
+          "windshield": 0.0020108185708522797,
+          "airbag": 0.016420790925621986,
+          "bumper": 0.007573824375867844,
+          "glass": 0.0005407965509220958
+        },
+        "survivors_0_15": []
+      },
+      "damage_compounds": {
+        "global_max": 0.048981428146362305,
+        "per_label_max": {
+          "crashed car": 0.048981428146362305,
+          "damaged car": 0.009334462694823742,
+          "shattered windshield": 0.005090036429464817,
+          "broken headlight": 0.009823763743042946,
+          "deployed airbag": 0.010305085219442844,
+          "crumpled bumper": 0.0001928625424625352,
+          "dent in car": 0.004062239546328783,
+          "scratch on car": 0.010572349652647972
+        },
+        "survivors_0_15": []
+      },
+      "owlvit_style": {
+        "global_max": 0.45628297328948975,
+        "per_label_max": {
+          "a photo of a car": null,
+          "a photo of a damaged car": 0.04229831323027611,
+          "a photo of a crashed car": 0.45628297328948975,
+          "a photo of a headlight": 0.010953454300761223,
+          "a photo of a broken headlight": 0.08887966722249985,
+          "a photo of a windshield": null,
+          "a photo of a shattered windshield": 0.0342261865735054,
+          "a photo of an airbag": 0.0021641727071255445,
+          "a photo of a deployed airbag": 0.025477711111307144,
+          "a photo of a bumper": 0.02366376854479313,
+          "a photo of a dent": 0.024040140211582184,
+          "a photo of broken glass": 0.014369248412549496
+        },
+        "survivors_0_15": [
+          {
+            "label": "a photo of a crashed car",
+            "score": 0.45628297328948975,
+            "box": {
+              "xmin": 0.7973223924636841,
+              "ymin": -0.027971267700195312,
+              "xmax": 347.42218017578125,
+              "ymax": 251.8773956298828
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "image": "inside_airbag_exploded.jpg",
+    "sets": {
+      "concrete_nouns": {
+        "global_max": 0.13516558706760406,
+        "per_label_max": {
+          "car": 0.13516558706760406,
+          "headlight": null,
+          "windshield": 0.02124970778822899,
+          "airbag": 0.05032677203416824,
+          "bumper": 0.015750469639897346,
+          "glass": 0.011015529744327068
+        },
+        "survivors_0_15": []
+      },
+      "damage_compounds": {
+        "global_max": 0.048353347927331924,
+        "per_label_max": {
+          "crashed car": 0.028177637606859207,
+          "damaged car": 0.03786999732255936,
+          "shattered windshield": 0.022215798497200012,
+          "broken headlight": 0.010507924482226372,
+          "deployed airbag": 0.048353347927331924,
+          "crumpled bumper": 0.0048444075509905815,
+          "dent in car": 0.00680337380617857,
+          "scratch on car": 0.018504753708839417
+        },
+        "survivors_0_15": []
+      },
+      "owlvit_style": {
+        "global_max": 0.5600826144218445,
+        "per_label_max": {
+          "a photo of a car": 0.5600826144218445,
+          "a photo of a damaged car": 0.5374240279197693,
+          "a photo of a crashed car": 0.13851051032543182,
+          "a photo of a headlight": null,
+          "a photo of a broken headlight": 0.04194328188896179,
+          "a photo of a windshield": 0.05057169497013092,
+          "a photo of a shattered windshield": 0.0888882577419281,
+          "a photo of an airbag": 0.042450886219739914,
+          "a photo of a deployed airbag": 0.1264299601316452,
+          "a photo of a bumper": 0.044634781777858734,
+          "a photo of a dent": 0.01703152433037758,
+          "a photo of broken glass": 0.034574586898088455
+        },
+        "survivors_0_15": [
+          {
+            "label": "a photo of a car",
+            "score": 0.5600826144218445,
+            "box": {
+              "xmin": 160.80062866210938,
+              "ymin": 81.74136352539062,
+              "xmax": 235.60476684570312,
+              "ymax": 116.37635040283203
+            }
+          },
+          {
+            "label": "a photo of a damaged car",
+            "score": 0.5374240279197693,
+            "box": {
+              "xmin": 383.3351135253906,
+              "ymin": 79.15562438964844,
+              "xmax": 474.6679382324219,
+              "ymax": 147.77491760253906
+            }
+          },
+          {
+            "label": "a photo of a damaged car",
+            "score": 0.4661112427711487,
+            "box": {
+              "xmin": 226.078857421875,
+              "ymin": 78.62522888183594,
+              "xmax": 297.57049560546875,
+              "ymax": 118.21453857421875
+            }
+          },
+          {
+            "label": "a photo of a damaged car",
+            "score": 0.43469446897506714,
+            "box": {
+              "xmin": 316.9784851074219,
+              "ymin": 95.22933197021484,
+              "xmax": 355.75225830078125,
+              "ymax": 116.0634536743164
+            }
+          },
+          {
+            "label": "a photo of a car",
+            "score": 0.38352566957473755,
+            "box": {
+              "xmin": 2.1012067794799805,
+              "ymin": 1.2318611145019531,
+              "xmax": 479.8206787109375,
+              "ymax": 636.66259765625
+            }
+          },
+          {
+            "label": "a photo of a car",
+            "score": 0.3814261257648468,
+            "box": {
+              "xmin": 1.0522735118865967,
+              "ymin": 87.21641540527344,
+              "xmax": 101.85746765136719,
+              "ymax": 151.4075927734375
+            }
+          },
+          {
+            "label": "a photo of a damaged car",
+            "score": 0.21904873847961426,
+            "box": {
+              "xmin": 0.11279046535491943,
+              "ymin": 96.67730712890625,
+              "xmax": 43.482627868652344,
+              "ymax": 139.838623046875
+            }
+          },
+          {
+            "label": "a photo of a damaged car",
+            "score": 0.17627321183681488,
+            "box": {
+              "xmin": 0.7740926742553711,
+              "ymin": 82.82701110839844,
+              "xmax": 119.60440826416016,
+              "ymax": 249.17237854003906
+            }
+          },
+          {
+            "label": "a photo of a damaged car",
+            "score": 0.15778668224811554,
+            "box": {
+              "xmin": 180.28309631347656,
+              "ymin": 84.12860870361328,
+              "xmax": 234.67758178710938,
+              "ymax": 116.13250732421875
+            }
+          },
+          {
+            "label": "a photo of a damaged car",
+            "score": 0.1524324268102646,
+            "box": {
+              "xmin": 5.0747270584106445,
+              "ymin": 80.4775161743164,
+              "xmax": 41.93663787841797,
+              "ymax": 95.84614562988281
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "image": "shattered_windshield.jpg",
+    "sets": {
+      "concrete_nouns": {
+        "global_max": 0.16796553134918213,
+        "per_label_max": {
+          "car": 0.16796553134918213,
+          "headlight": null,
+          "windshield": 0.05202949792146683,
+          "airbag": 0.052193090319633484,
+          "bumper": 0.0009825517190620303,
+          "glass": 0.006426915060728788
+        },
+        "survivors_0_15": [
+          {
+            "label": "car",
+            "score": 0.16796553134918213,
+            "box": {
+              "xmin": 2.900547504425049,
+              "ymin": 8.625216484069824,
+              "xmax": 679.5103759765625,
+              "ymax": 454.044189453125
+            }
+          }
+        ]
+      },
+      "damage_compounds": {
+        "global_max": 0.13135944306850433,
+        "per_label_max": {
+          "crashed car": 0.03515499457716942,
+          "damaged car": 0.012587105855345726,
+          "shattered windshield": 0.13135944306850433,
+          "broken headlight": 0.0031516235321760178,
+          "deployed airbag": 0.04360231012105942,
+          "crumpled bumper": 0.00028764171293005347,
+          "dent in car": 0.020223144441843033,
+          "scratch on car": 0.027724087238311768
+        },
+        "survivors_0_15": []
+      },
+      "owlvit_style": {
+        "global_max": 0.5029343366622925,
+        "per_label_max": {
+          "a photo of a car": 0.5029343366622925,
+          "a photo of a damaged car": 0.18219999969005585,
+          "a photo of a crashed car": 0.08771661669015884,
+          "a photo of a headlight": 0.0003335438668727875,
+          "a photo of a broken headlight": 0.0007333438843488693,
+          "a photo of a windshield": null,
+          "a photo of a shattered windshield": 0.3263911008834839,
+          "a photo of an airbag": null,
+          "a photo of a deployed airbag": 0.07720562070608139,
+          "a photo of a bumper": 0.0012238438939675689,
+          "a photo of a dent": 0.04006822407245636,
+          "a photo of broken glass": 0.029330728575587273
+        },
+        "survivors_0_15": [
+          {
+            "label": "a photo of a car",
+            "score": 0.5029343366622925,
+            "box": {
+              "xmin": 2.900547504425049,
+              "ymin": 8.625216484069824,
+              "xmax": 679.5103759765625,
+              "ymax": 454.044189453125
+            }
+          },
+          {
+            "label": "a photo of a car",
+            "score": 0.3909189701080322,
+            "box": {
+              "xmin": -4.78007698059082,
+              "ymin": 60.27642822265625,
+              "xmax": 304.0721130371094,
+              "ymax": 229.1451873779297
+            }
+          },
+          {
+            "label": "a photo of a car",
+            "score": 0.3851245939731598,
+            "box": {
+              "xmin": -0.5059171915054321,
+              "ymin": 48.29084396362305,
+              "xmax": 98.3305435180664,
+              "ymax": 76.84175109863281
+            }
+          },
+          {
+            "label": "a photo of a shattered windshield",
+            "score": 0.3263911008834839,
+            "box": {
+              "xmin": -0.41288888454437256,
+              "ymin": 89.5838623046875,
+              "xmax": 606.8551025390625,
+              "ymax": 446.51513671875
+            }
+          },
+          {
+            "label": "a photo of a car",
+            "score": 0.2607654333114624,
+            "box": {
+              "xmin": 249.62472534179688,
+              "ymin": 52.703914642333984,
+              "xmax": 325.1220397949219,
+              "ymax": 71.3794174194336
+            }
+          },
+          {
+            "label": "a photo of a car",
+            "score": 0.2160264104604721,
+            "box": {
+              "xmin": 249.92440795898438,
+              "ymin": 55.8473014831543,
+              "xmax": 303.4391174316406,
+              "ymax": 71.0455093383789
+            }
+          },
+          {
+            "label": "a photo of a car",
+            "score": 0.21131646633148193,
+            "box": {
+              "xmin": 507.9380187988281,
+              "ymin": 38.875831604003906,
+              "xmax": 579.4995727539062,
+              "ymax": 57.37888717651367
+            }
+          },
+          {
+            "label": "a photo of a car",
+            "score": 0.18845012784004211,
+            "box": {
+              "xmin": 3.2971301078796387,
+              "ymin": 53.34210205078125,
+              "xmax": 284.4600524902344,
+              "ymax": 111.36807250976562
+            }
+          },
+          {
+            "label": "a photo of a damaged car",
+            "score": 0.18219999969005585,
+            "box": {
+              "xmin": 318.42681884765625,
+              "ymin": 54.798316955566406,
+              "xmax": 362.43499755859375,
+              "ymax": 66.83798217773438
+            }
+          },
+          {
+            "label": "a photo of a car",
+            "score": 0.16986773908138275,
+            "box": {
+              "xmin": 609.457275390625,
+              "ymin": 41.508522033691406,
+              "xmax": 667.4191284179688,
+              "ymax": 56.71385192871094
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "image": "side_damage.jpg",
+    "sets": {
+      "concrete_nouns": {
+        "global_max": 0.014970011077821255,
+        "per_label_max": {
+          "car": 0.014970011077821255,
+          "headlight": 0.0023031204473227262,
+          "windshield": 0.000325026543578133,
+          "airbag": 0.003061445662751794,
+          "bumper": 0.004610233008861542,
+          "glass": 0.0015678566414862871
+        },
+        "survivors_0_15": []
+      },
+      "damage_compounds": {
+        "global_max": 0.008150067180395126,
+        "per_label_max": {
+          "crashed car": 0.0017702364129945636,
+          "damaged car": 0.008150067180395126,
+          "shattered windshield": 4.305036782170646e-05,
+          "broken headlight": 0.007454033009707928,
+          "deployed airbag": 0.003965615760535002,
+          "crumpled bumper": 2.3170919405401946e-07,
+          "dent in car": 0.004044333938509226,
+          "scratch on car": 0.005331712309271097
+        },
+        "survivors_0_15": []
+      },
+      "owlvit_style": {
+        "global_max": 0.060556646436452866,
+        "per_label_max": {
+          "a photo of a car": 0.001097506145015359,
+          "a photo of a damaged car": 0.060556646436452866,
+          "a photo of a crashed car": 0.004299933090806007,
+          "a photo of a headlight": null,
+          "a photo of a broken headlight": 0.015489635989069939,
+          "a photo of a windshield": 0.010382899083197117,
+          "a photo of a shattered windshield": 0.0016631504986435175,
+          "a photo of an airbag": null,
+          "a photo of a deployed airbag": 0.006320216692984104,
+          "a photo of a bumper": 0.016048366203904152,
+          "a photo of a dent": 0.026723243296146393,
+          "a photo of broken glass": 0.00805757287889719
+        },
+        "survivors_0_15": []
+      }
+    }
+  },
+  {
+    "image": "totaled_car.jpg",
+    "sets": {
+      "concrete_nouns": {
+        "global_max": 0.14641173183918,
+        "per_label_max": {
+          "car": 0.14641173183918,
+          "headlight": 0.018180565908551216,
+          "windshield": 0.028795775026082993,
+          "airbag": 0.047779232263565063,
+          "bumper": 0.029712753370404243,
+          "glass": 0.0047916229814291
+        },
+        "survivors_0_15": []
+      },
+      "damage_compounds": {
+        "global_max": 0.049121223390102386,
+        "per_label_max": {
+          "crashed car": 0.008870323188602924,
+          "damaged car": 0.041096754372119904,
+          "shattered windshield": 0.049121223390102386,
+          "broken headlight": 0.04176595062017441,
+          "deployed airbag": 0.028384773060679436,
+          "crumpled bumper": 0.04406266659498215,
+          "dent in car": 0.028828617185354233,
+          "scratch on car": 0.005233109463006258
+        },
+        "survivors_0_15": []
+      },
+      "owlvit_style": {
+        "global_max": 0.6004449725151062,
+        "per_label_max": {
+          "a photo of a car": 0.08159033954143524,
+          "a photo of a damaged car": 0.6004449725151062,
+          "a photo of a crashed car": 0.008771643042564392,
+          "a photo of a headlight": null,
+          "a photo of a broken headlight": 0.06921569257974625,
+          "a photo of a windshield": null,
+          "a photo of a shattered windshield": 0.16122592985630035,
+          "a photo of an airbag": 0.005759992636740208,
+          "a photo of a deployed airbag": 0.057585425674915314,
+          "a photo of a bumper": 0.05339328944683075,
+          "a photo of a dent": 0.018061764538288116,
+          "a photo of broken glass": 0.01731136627495289
+        },
+        "survivors_0_15": [
+          {
+            "label": "a photo of a damaged car",
+            "score": 0.6004449725151062,
+            "box": {
+              "xmin": -0.02891474962234497,
+              "ymin": -3.4859886169433594,
+              "xmax": 604.3430786132812,
+              "ymax": 344.74908447265625
+            }
+          },
+          {
+            "label": "a photo of a shattered windshield",
+            "score": 0.16122592985630035,
+            "box": {
+              "xmin": 76.9835433959961,
+              "ymin": -0.24488294124603271,
+              "xmax": 344.27215576171875,
+              "ymax": 79.59851837158203
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "image": "undamaged_car.jpg",
+    "sets": {
+      "concrete_nouns": {
+        "global_max": 0.1533413678407669,
+        "per_label_max": {
+          "car": 0.1533413678407669,
+          "headlight": 0.12780240178108215,
+          "windshield": 0.031151650473475456,
+          "airbag": 0.04949882626533508,
+          "bumper": 0.07020977139472961,
+          "glass": 0.014504827558994293
+        },
+        "survivors_0_15": [
+          {
+            "label": "car",
+            "score": 0.1533413678407669,
+            "box": {
+              "xmin": 15.577160835266113,
+              "ymin": 17.741180419921875,
+              "xmax": 512.7206420898438,
+              "ymax": 355.8544006347656
+            }
+          }
+        ]
+      },
+      "damage_compounds": {
+        "global_max": 0.09656869620084763,
+        "per_label_max": {
+          "crashed car": 0.05313897505402565,
+          "damaged car": 0.023214276880025864,
+          "shattered windshield": 0.032759953290224075,
+          "broken headlight": 0.09656869620084763,
+          "deployed airbag": 0.03718601539731026,
+          "crumpled bumper": 0.014487069100141525,
+          "dent in car": 0.0845978632569313,
+          "scratch on car": 0.03281089663505554
+        },
+        "survivors_0_15": []
+      },
+      "owlvit_style": {
+        "global_max": 0.438234806060791,
+        "per_label_max": {
+          "a photo of a car": 0.438234806060791,
+          "a photo of a damaged car": 0.22359031438827515,
+          "a photo of a crashed car": 0.2310199737548828,
+          "a photo of a headlight": 0.21395598351955414,
+          "a photo of a broken headlight": 0.12618769705295563,
+          "a photo of a windshield": 0.04999183863401413,
+          "a photo of a shattered windshield": 0.08550786226987839,
+          "a photo of an airbag": 0.026230888441205025,
+          "a photo of a deployed airbag": 0.07910535484552383,
+          "a photo of a bumper": 0.08085881918668747,
+          "a photo of a dent": 0.027691451832652092,
+          "a photo of broken glass": 0.027643168345093727
+        },
+        "survivors_0_15": [
+          {
+            "label": "a photo of a car",
+            "score": 0.438234806060791,
+            "box": {
+              "xmin": 15.577160835266113,
+              "ymin": 17.741180419921875,
+              "xmax": 512.7206420898438,
+              "ymax": 355.8544006347656
+            }
+          },
+          {
+            "label": "a photo of a car",
+            "score": 0.3747251033782959,
+            "box": {
+              "xmin": 234.1197509765625,
+              "ymin": 10.828850746154785,
+              "xmax": 320.0934753417969,
+              "ymax": 55.05448913574219
+            }
+          },
+          {
+            "label": "a photo of a car",
+            "score": 0.3052956461906433,
+            "box": {
+              "xmin": 334.6090393066406,
+              "ymin": 6.610020637512207,
+              "xmax": 435.2370910644531,
+              "ymax": 47.431121826171875
+            }
+          },
+          {
+            "label": "a photo of a car",
+            "score": 0.29444965720176697,
+            "box": {
+              "xmin": 290.00927734375,
+              "ymin": 6.789196968078613,
+              "xmax": 329.5526428222656,
+              "ymax": 28.65227508544922
+            }
+          },
+          {
+            "label": "a photo of a car",
+            "score": 0.274342805147171,
+            "box": {
+              "xmin": 10.324362754821777,
+              "ymin": 7.398461818695068,
+              "xmax": 129.8039093017578,
+              "ymax": 44.489933013916016
+            }
+          },
+          {
+            "label": "a photo of a crashed car",
+            "score": 0.2310199737548828,
+            "box": {
+              "xmin": 463.42694091796875,
+              "ymin": 4.6717400550842285,
+              "xmax": 514.1661987304688,
+              "ymax": 36.33898162841797
+            }
+          },
+          {
+            "label": "a photo of a damaged car",
+            "score": 0.22359031438827515,
+            "box": {
+              "xmin": 323.5538330078125,
+              "ymin": 4.635941505432129,
+              "xmax": 515.9020385742188,
+              "ymax": 129.7034912109375
+            }
+          },
+          {
+            "label": "a photo of a car",
+            "score": 0.21929341554641724,
+            "box": {
+              "xmin": -0.2047756314277649,
+              "ymin": 23.917953491210938,
+              "xmax": 65.28524780273438,
+              "ymax": 122.1082534790039
+            }
+          },
+          {
+            "label": "a photo of a headlight",
+            "score": 0.21395598351955414,
+            "box": {
+              "xmin": 202.4478302001953,
+              "ymin": 208.62933349609375,
+              "xmax": 333.1417236328125,
+              "ymax": 273.406005859375
+            }
+          },
+          {
+            "label": "a photo of a damaged car",
+            "score": 0.2001640498638153,
+            "box": {
+              "xmin": -2.5765092372894287,
+              "ymin": 6.752239227294922,
+              "xmax": 143.33119201660156,
+              "ymax": 119.1883316040039
+            }
+          }
+        ]
+      }
+    }
+  }
+]

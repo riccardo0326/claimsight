@@ -1,0 +1,500 @@
+Using a slow image processor as `use_fast` is unset and a slow processor was saved with this model. `use_fast=True` will be the default behavior in v4.52, even if the model was saved with a slow processor. This will result in minor differences in outputs. You'll still be able to use a slow processor with `use_fast=False`.
+Device set to use cpu
+/usr/local/lib/python3.12/site-packages/transformers/models/owlvit/processing_owlvit.py:233: FutureWarning: `post_process_object_detection` method is deprecated for OwlVitProcessor and will be removed in v5. Use `post_process_grounded_object_detection` instead.
+  warnings.warn(
+Loading model google/owlvit-base-patch32 ...
+Pipeline threshold attr: None
+__call__ threshold default: {}
+
+========================================================================
+IMAGE: front_collision.jpg
+  file=24444B magic=b'RIFF' PIL format=WEBP mode=RGB->RGB size=[347, 280]
+  array shape=[280, 347, 3] dtype=uint8 min/max/mean=0/255/99.68 blank=False
+  model pixel_values shape=(1, 3, 768, 768) dtype=torch.float32 min/max/mean=-1.7923/2.1459/-0.2203
+  saved: {'rgb_png': 'scripts/debug_output/front_collision_rgb.png', 'model_input_png': 'scripts/debug_output/front_collision_model_input.png', 'pixel_values_npy': 'scripts/debug_output/front_collision_pixel_values.npy'}
+
+  === Pass: bare_labels_pipeline ===
+  Labels: ['dent', 'scratch', 'broken glass', 'broken headlight', 'deployed airbag', 'bumper damage']
+  Raw (label, box, score) triples (pre-filter): 3456
+  Score stats: min=2.7009008363165776e-08, max=0.014194468036293983, mean=0.0005360295950123189, p50=0.00023883585527073592, p90=0.0012779684038832784, p99=0.004338650242425497
+  Counts >= thresholds: >=0.05:0  >=0.10:0  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'dent': max=0.011035  raw_boxes=576
+    - 'scratch': max=0.008596  raw_boxes=576
+    - 'broken glass': max=0.004353  raw_boxes=576
+    - 'broken headlight': max=0.014194  raw_boxes=576
+    - 'deployed airbag': max=0.010305  raw_boxes=576
+    - 'bumper damage': max=0.004327  raw_boxes=576
+  Would survive prod floor 0.15: (none)
+
+  === Pass: bare_labels_direct ===
+  Labels: ['dent', 'scratch', 'broken glass', 'broken headlight', 'deployed airbag', 'bumper damage']
+  Raw (label, box, score) triples (pre-filter): 576
+  Score stats: min=1.0151202900487988e-07, max=0.014194473624229431, mean=0.0011776105257484588, p50=0.0006692383904010057, p90=0.0027944513130933046, p99=0.008708573644980788
+  Counts >= thresholds: >=0.05:0  >=0.10:0  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'dent': max=0.011035  raw_boxes=209
+    - 'scratch': max=0.003646  raw_boxes=70
+    - 'broken glass': max=0.002586  raw_boxes=33
+    - 'broken headlight': max=0.014194  raw_boxes=91
+    - 'deployed airbag': max=0.010305  raw_boxes=139
+    - 'bumper damage': max=0.004228  raw_boxes=34
+  Would survive prod floor 0.15: (none)
+  Direct forward global max sigmoid(logit): 0.014194
+  Per-query max sigmoid(logit) across all patches:
+    - 'dent': 0.011035
+    - 'scratch': 0.008596
+    - 'broken glass': 0.004353
+    - 'broken headlight': 0.014194
+    - 'deployed airbag': 0.010305
+    - 'bumper damage': 0.004327
+
+  === Pass: templated_a_photo_of_a_pipeline ===
+  Labels: ['a photo of a dent', 'a photo of a scratch', 'a photo of a broken glass', 'a photo of a broken headlight', 'a photo of a deployed airbag', 'a photo of a bumper damage']
+  Raw (label, box, score) triples (pre-filter): 3456
+  Score stats: min=3.44838895216526e-08, max=0.10559947043657303, mean=0.001587781725803883, p50=0.0005236539873294532, p90=0.003712561330758035, p99=0.014792959997430443
+  Counts >= thresholds: >=0.05:3  >=0.10:1  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'a photo of a dent': max=0.024513  raw_boxes=576
+    - 'a photo of a scratch': max=0.019572  raw_boxes=576
+    - 'a photo of a broken glass': max=0.028375  raw_boxes=576
+    - 'a photo of a broken headlight': max=0.105599  raw_boxes=576
+    - 'a photo of a deployed airbag': max=0.029220  raw_boxes=576
+    - 'a photo of a bumper damage': max=0.033371  raw_boxes=576
+  Would survive prod floor 0.15: (none)
+
+  === Pass: templated_a_photo_of_a_direct ===
+  Labels: ['a photo of a dent', 'a photo of a scratch', 'a photo of a broken glass', 'a photo of a broken headlight', 'a photo of a deployed airbag', 'a photo of a bumper damage']
+  Raw (label, box, score) triples (pre-filter): 576
+  Score stats: min=1.9196768619167415e-07, max=0.10559950768947601, mean=0.0035112400317823195, p50=0.0016358691500499845, p90=0.0076323754619807005, p99=0.03140540421009064
+  Counts >= thresholds: >=0.05:3  >=0.10:1  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'a photo of a dent': max=0.021660  raw_boxes=233
+    - 'a photo of a scratch': max=0.007930  raw_boxes=130
+    - 'a photo of a broken glass': max=0.015459  raw_boxes=30
+    - 'a photo of a broken headlight': max=0.105600  raw_boxes=81
+    - 'a photo of a deployed airbag': max=0.025478  raw_boxes=59
+    - 'a photo of a bumper damage': max=0.033371  raw_boxes=43
+  Would survive prod floor 0.15: (none)
+  Direct forward global max sigmoid(logit): 0.105600
+  Per-query max sigmoid(logit) across all patches:
+    - 'a photo of a dent': 0.024513
+    - 'a photo of a scratch': 0.019572
+    - 'a photo of a broken glass': 0.028375
+    - 'a photo of a broken headlight': 0.105600
+    - 'a photo of a deployed airbag': 0.029220
+    - 'a photo of a bumper damage': 0.033371
+
+  Default-threshold pipeline call (as vision_agent): count=0 max_score=None
+
+========================================================================
+IMAGE: inside_airbag_exploded.jpg
+  file=46613B magic=b'\xff\xd8\xff\xe0' PIL format=JPEG mode=RGB->RGB size=[480, 640]
+  array shape=[640, 480, 3] dtype=uint8 min/max/mean=0/255/96.72 blank=False
+  model pixel_values shape=(1, 3, 768, 768) dtype=torch.float32 min/max/mean=-1.7923/2.1459/-0.2629
+  saved: {'rgb_png': 'scripts/debug_output/inside_airbag_exploded_rgb.png', 'model_input_png': 'scripts/debug_output/inside_airbag_exploded_model_input.png', 'pixel_values_npy': 'scripts/debug_output/inside_airbag_exploded_pixel_values.npy'}
+
+  === Pass: bare_labels_pipeline ===
+  Labels: ['dent', 'scratch', 'broken glass', 'broken headlight', 'deployed airbag', 'bumper damage']
+  Raw (label, box, score) triples (pre-filter): 3456
+  Score stats: min=4.233177008927669e-08, max=0.04835343360900879, mean=0.0020818812403120123, p50=0.0011347380350343883, p90=0.004796631867066026, p99=0.016931695118546378
+  Counts >= thresholds: >=0.05:0  >=0.10:0  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'dent': max=0.010341  raw_boxes=576
+    - 'scratch': max=0.008919  raw_boxes=576
+    - 'broken glass': max=0.018416  raw_boxes=576
+    - 'broken headlight': max=0.023609  raw_boxes=576
+    - 'deployed airbag': max=0.048353  raw_boxes=576
+    - 'bumper damage': max=0.006641  raw_boxes=576
+  Would survive prod floor 0.15: (none)
+
+  === Pass: bare_labels_direct ===
+  Labels: ['dent', 'scratch', 'broken glass', 'broken headlight', 'deployed airbag', 'bumper damage']
+  Raw (label, box, score) triples (pre-filter): 576
+  Score stats: min=1.4794612468449486e-07, max=0.04835335537791252, mean=0.004891841597309796, p50=0.002872114419005811, p90=0.011756844818592072, p99=0.027968621347099543
+  Counts >= thresholds: >=0.05:0  >=0.10:0  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'dent': max=0.010341  raw_boxes=55
+    - 'scratch': max=0.008396  raw_boxes=72
+    - 'broken glass': max=0.018407  raw_boxes=180
+    - 'broken headlight': max=0.023609  raw_boxes=14
+    - 'deployed airbag': max=0.048353  raw_boxes=254
+    - 'bumper damage': max=0.000134  raw_boxes=1
+  Would survive prod floor 0.15: (none)
+  Direct forward global max sigmoid(logit): 0.048353
+  Per-query max sigmoid(logit) across all patches:
+    - 'dent': 0.010341
+    - 'scratch': 0.008919
+    - 'broken glass': 0.018416
+    - 'broken headlight': 0.023609
+    - 'deployed airbag': 0.048353
+    - 'bumper damage': 0.006641
+
+  === Pass: templated_a_photo_of_a_pipeline ===
+  Labels: ['a photo of a dent', 'a photo of a scratch', 'a photo of a broken glass', 'a photo of a broken headlight', 'a photo of a deployed airbag', 'a photo of a bumper damage']
+  Raw (label, box, score) triples (pre-filter): 3456
+  Score stats: min=8.970459930424113e-08, max=0.12642990052700043, mean=0.005692816421706902, p50=0.002745862235315144, p90=0.014396732207387686, p99=0.04392308816313731
+  Counts >= thresholds: >=0.05:24  >=0.10:1  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'a photo of a dent': max=0.044827  raw_boxes=576
+    - 'a photo of a scratch': max=0.040979  raw_boxes=576
+    - 'a photo of a broken glass': max=0.050644  raw_boxes=576
+    - 'a photo of a broken headlight': max=0.065490  raw_boxes=576
+    - 'a photo of a deployed airbag': max=0.126430  raw_boxes=576
+    - 'a photo of a bumper damage': max=0.051344  raw_boxes=576
+  Would survive prod floor 0.15: (none)
+
+  === Pass: templated_a_photo_of_a_direct ===
+  Labels: ['a photo of a dent', 'a photo of a scratch', 'a photo of a broken glass', 'a photo of a broken headlight', 'a photo of a deployed airbag', 'a photo of a bumper damage']
+  Raw (label, box, score) triples (pre-filter): 576
+  Score stats: min=3.5330049286130816e-07, max=0.12642990052700043, mean=0.012285694180473428, p50=0.006769662955775857, p90=0.032144706696271896, p99=0.07218693196773529
+  Counts >= thresholds: >=0.05:22  >=0.10:1  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'a photo of a dent': max=0.022162  raw_boxes=57
+    - 'a photo of a scratch': max=0.040979  raw_boxes=142
+    - 'a photo of a broken glass': max=0.050644  raw_boxes=119
+    - 'a photo of a broken headlight': max=0.065490  raw_boxes=7
+    - 'a photo of a deployed airbag': max=0.126430  raw_boxes=237
+    - 'a photo of a bumper damage': max=0.032478  raw_boxes=14
+  Would survive prod floor 0.15: (none)
+  Direct forward global max sigmoid(logit): 0.126430
+  Per-query max sigmoid(logit) across all patches:
+    - 'a photo of a dent': 0.044827
+    - 'a photo of a scratch': 0.040979
+    - 'a photo of a broken glass': 0.050644
+    - 'a photo of a broken headlight': 0.065490
+    - 'a photo of a deployed airbag': 0.126430
+    - 'a photo of a bumper damage': 0.051344
+
+  Default-threshold pipeline call (as vision_agent): count=0 max_score=None
+
+========================================================================
+IMAGE: shattered_windshield.jpg
+  file=42990B magic=b'\xff\xd8\xff\xe0' PIL format=JPEG mode=RGB->RGB size=[678, 452]
+  array shape=[452, 678, 3] dtype=uint8 min/max/mean=0/255/115.41 blank=False
+  model pixel_values shape=(1, 3, 768, 768) dtype=torch.float32 min/max/mean=-1.7923/2.1459/0.0090
+  saved: {'rgb_png': 'scripts/debug_output/shattered_windshield_rgb.png', 'model_input_png': 'scripts/debug_output/shattered_windshield_model_input.png', 'pixel_values_npy': 'scripts/debug_output/shattered_windshield_pixel_values.npy'}
+
+  === Pass: bare_labels_pipeline ===
+  Labels: ['dent', 'scratch', 'broken glass', 'broken headlight', 'deployed airbag', 'bumper damage']
+  Raw (label, box, score) triples (pre-filter): 3456
+  Score stats: min=4.9729777629181626e-08, max=0.04360232874751091, mean=0.0011664490062543833, p50=0.0005463107081595808, p90=0.00284063839353621, p99=0.009256351599469768
+  Counts >= thresholds: >=0.05:0  >=0.10:0  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'dent': max=0.017052  raw_boxes=576
+    - 'scratch': max=0.021822  raw_boxes=576
+    - 'broken glass': max=0.017147  raw_boxes=576
+    - 'broken headlight': max=0.026262  raw_boxes=576
+    - 'deployed airbag': max=0.043602  raw_boxes=576
+    - 'bumper damage': max=0.005617  raw_boxes=576
+  Would survive prod floor 0.15: (none)
+
+  === Pass: bare_labels_direct ===
+  Labels: ['dent', 'scratch', 'broken glass', 'broken headlight', 'deployed airbag', 'bumper damage']
+  Raw (label, box, score) triples (pre-filter): 576
+  Score stats: min=1.6518721679403825e-07, max=0.04360231012105942, mean=0.002522327450895867, p50=0.0015450480277650058, p90=0.00564601132646203, p99=0.016010813880711794
+  Counts >= thresholds: >=0.05:0  >=0.10:0  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'dent': max=0.017052  raw_boxes=75
+    - 'scratch': max=0.021822  raw_boxes=299
+    - 'broken glass': max=0.005927  raw_boxes=82
+    - 'broken headlight': max=0.026262  raw_boxes=47
+    - 'deployed airbag': max=0.043602  raw_boxes=73
+    - 'bumper damage': max=None (0 boxes)  raw_boxes=0
+  Would survive prod floor 0.15: (none)
+  Direct forward global max sigmoid(logit): 0.043602
+  Per-query max sigmoid(logit) across all patches:
+    - 'dent': 0.017052
+    - 'scratch': 0.021822
+    - 'broken glass': 0.017147
+    - 'broken headlight': 0.026262
+    - 'deployed airbag': 0.043602
+    - 'bumper damage': 0.005617
+
+  === Pass: templated_a_photo_of_a_pipeline ===
+  Labels: ['a photo of a dent', 'a photo of a scratch', 'a photo of a broken glass', 'a photo of a broken headlight', 'a photo of a deployed airbag', 'a photo of a bumper damage']
+  Raw (label, box, score) triples (pre-filter): 3456
+  Score stats: min=1.1000735611332857e-07, max=0.1249714270234108, mean=0.003765895920784435, p50=0.001385244308039546, p90=0.010087448637932539, p99=0.029060834273695865
+  Counts >= thresholds: >=0.05:10  >=0.10:1  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'a photo of a dent': max=0.071812  raw_boxes=576
+    - 'a photo of a scratch': max=0.094648  raw_boxes=576
+    - 'a photo of a broken glass': max=0.124971  raw_boxes=576
+    - 'a photo of a broken headlight': max=0.069295  raw_boxes=576
+    - 'a photo of a deployed airbag': max=0.077206  raw_boxes=576
+    - 'a photo of a bumper damage': max=0.044062  raw_boxes=576
+  Would survive prod floor 0.15: (none)
+
+  === Pass: templated_a_photo_of_a_direct ===
+  Labels: ['a photo of a dent', 'a photo of a scratch', 'a photo of a broken glass', 'a photo of a broken headlight', 'a photo of a deployed airbag', 'a photo of a bumper damage']
+  Raw (label, box, score) triples (pre-filter): 576
+  Score stats: min=3.186922299391881e-07, max=0.1249714270234108, mean=0.008444542161652753, p50=0.005438664695248008, p90=0.01996187586337328, p99=0.05131008103489876
+  Counts >= thresholds: >=0.05:7  >=0.10:1  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'a photo of a dent': max=0.040068  raw_boxes=62
+    - 'a photo of a scratch': max=0.094648  raw_boxes=398
+    - 'a photo of a broken glass': max=0.124971  raw_boxes=71
+    - 'a photo of a broken headlight': max=0.028653  raw_boxes=26
+    - 'a photo of a deployed airbag': max=0.077206  raw_boxes=18
+    - 'a photo of a bumper damage': max=0.016744  raw_boxes=1
+  Would survive prod floor 0.15: (none)
+  Direct forward global max sigmoid(logit): 0.124971
+  Per-query max sigmoid(logit) across all patches:
+    - 'a photo of a dent': 0.071812
+    - 'a photo of a scratch': 0.094648
+    - 'a photo of a broken glass': 0.124971
+    - 'a photo of a broken headlight': 0.069295
+    - 'a photo of a deployed airbag': 0.077206
+    - 'a photo of a bumper damage': 0.044062
+
+  Default-threshold pipeline call (as vision_agent): count=0 max_score=None
+
+========================================================================
+IMAGE: side_damage.jpg
+  file=52046B magic=b'\xff\xd8\xff\xe0' PIL format=JPEG mode=RGB->RGB size=[554, 554]
+  array shape=[554, 554, 3] dtype=uint8 min/max/mean=0/255/102.72 blank=False
+  model pixel_values shape=(1, 3, 768, 768) dtype=torch.float32 min/max/mean=-1.7923/2.1459/-0.1743
+  saved: {'rgb_png': 'scripts/debug_output/side_damage_rgb.png', 'model_input_png': 'scripts/debug_output/side_damage_model_input.png', 'pixel_values_npy': 'scripts/debug_output/side_damage_pixel_values.npy'}
+
+  === Pass: bare_labels_pipeline ===
+  Labels: ['dent', 'scratch', 'broken glass', 'broken headlight', 'deployed airbag', 'bumper damage']
+  Raw (label, box, score) triples (pre-filter): 3456
+  Score stats: min=9.939806755454583e-10, max=0.0074540297500789165, mean=0.0003049335087344058, p50=0.00013333067181520164, p90=0.0007720375724602491, p99=0.0023284484632313212
+  Counts >= thresholds: >=0.05:0  >=0.10:0  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'dent': max=0.005021  raw_boxes=576
+    - 'scratch': max=0.006430  raw_boxes=576
+    - 'broken glass': max=0.003839  raw_boxes=576
+    - 'broken headlight': max=0.007454  raw_boxes=576
+    - 'deployed airbag': max=0.003966  raw_boxes=576
+    - 'bumper damage': max=0.002829  raw_boxes=576
+  Would survive prod floor 0.15: (none)
+
+  === Pass: bare_labels_direct ===
+  Labels: ['dent', 'scratch', 'broken glass', 'broken headlight', 'deployed airbag', 'bumper damage']
+  Raw (label, box, score) triples (pre-filter): 576
+  Score stats: min=3.908749768299913e-09, max=0.007454033009707928, mean=0.0006355015679523299, p50=0.000455339890322648, p90=0.0013223668793216348, p99=0.0037066942313686013
+  Counts >= thresholds: >=0.05:0  >=0.10:0  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'dent': max=0.005021  raw_boxes=124
+    - 'scratch': max=0.003736  raw_boxes=330
+    - 'broken glass': max=0.003320  raw_boxes=80
+    - 'broken headlight': max=0.007454  raw_boxes=19
+    - 'deployed airbag': max=0.003966  raw_boxes=19
+    - 'bumper damage': max=0.002829  raw_boxes=4
+  Would survive prod floor 0.15: (none)
+  Direct forward global max sigmoid(logit): 0.007454
+  Per-query max sigmoid(logit) across all patches:
+    - 'dent': 0.005021
+    - 'scratch': 0.006430
+    - 'broken glass': 0.003839
+    - 'broken headlight': 0.007454
+    - 'deployed airbag': 0.003966
+    - 'bumper damage': 0.002829
+
+  === Pass: templated_a_photo_of_a_pipeline ===
+  Labels: ['a photo of a dent', 'a photo of a scratch', 'a photo of a broken glass', 'a photo of a broken headlight', 'a photo of a deployed airbag', 'a photo of a bumper damage']
+  Raw (label, box, score) triples (pre-filter): 3456
+  Score stats: min=1.4981331730723468e-09, max=0.026723256334662437, mean=0.0009695948551333523, p50=0.00024430674966424704, p90=0.002655198215506971, p99=0.009892493160441515
+  Counts >= thresholds: >=0.05:0  >=0.10:0  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'a photo of a dent': max=0.026723  raw_boxes=576
+    - 'a photo of a scratch': max=0.026396  raw_boxes=576
+    - 'a photo of a broken glass': max=0.007569  raw_boxes=576
+    - 'a photo of a broken headlight': max=0.015490  raw_boxes=576
+    - 'a photo of a deployed airbag': max=0.009381  raw_boxes=576
+    - 'a photo of a bumper damage': max=0.014282  raw_boxes=576
+  Would survive prod floor 0.15: (none)
+
+  === Pass: templated_a_photo_of_a_direct ===
+  Labels: ['a photo of a dent', 'a photo of a scratch', 'a photo of a broken glass', 'a photo of a broken headlight', 'a photo of a deployed airbag', 'a photo of a bumper damage']
+  Raw (label, box, score) triples (pre-filter): 576
+  Score stats: min=1.2229839363442352e-08, max=0.026723243296146393, mean=0.0024453742501833542, p50=0.0015884563326835632, p90=0.005970741156488657, p99=0.01392808323726058
+  Counts >= thresholds: >=0.05:0  >=0.10:0  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'a photo of a dent': max=0.026723  raw_boxes=94
+    - 'a photo of a scratch': max=0.026396  raw_boxes=468
+    - 'a photo of a broken glass': max=0.007569  raw_boxes=2
+    - 'a photo of a broken headlight': max=0.015490  raw_boxes=1
+    - 'a photo of a deployed airbag': max=0.006320  raw_boxes=3
+    - 'a photo of a bumper damage': max=0.012687  raw_boxes=8
+  Would survive prod floor 0.15: (none)
+  Direct forward global max sigmoid(logit): 0.026723
+  Per-query max sigmoid(logit) across all patches:
+    - 'a photo of a dent': 0.026723
+    - 'a photo of a scratch': 0.026396
+    - 'a photo of a broken glass': 0.007569
+    - 'a photo of a broken headlight': 0.015490
+    - 'a photo of a deployed airbag': 0.009381
+    - 'a photo of a bumper damage': 0.014282
+
+  Default-threshold pipeline call (as vision_agent): count=0 max_score=None
+
+========================================================================
+IMAGE: totaled_car.jpg
+  file=64510B magic=b'\xff\xd8\xff\xe0' PIL format=JPEG mode=RGB->RGB size=[678, 452]
+  array shape=[452, 678, 3] dtype=uint8 min/max/mean=0/255/139.06 blank=False
+  model pixel_values shape=(1, 3, 768, 768) dtype=torch.float32 min/max/mean=-1.7923/2.1459/0.3562
+  saved: {'rgb_png': 'scripts/debug_output/totaled_car_rgb.png', 'model_input_png': 'scripts/debug_output/totaled_car_model_input.png', 'pixel_values_npy': 'scripts/debug_output/totaled_car_pixel_values.npy'}
+
+  === Pass: bare_labels_pipeline ===
+  Labels: ['dent', 'scratch', 'broken glass', 'broken headlight', 'deployed airbag', 'bumper damage']
+  Raw (label, box, score) triples (pre-filter): 3456
+  Score stats: min=5.188813645418122e-08, max=0.041765931993722916, mean=0.0012469306465715576, p50=0.0005835508345626295, p90=0.0029325486393645406, p99=0.010753714712336623
+  Counts >= thresholds: >=0.05:0  >=0.10:0  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'dent': max=0.025869  raw_boxes=576
+    - 'scratch': max=0.006935  raw_boxes=576
+    - 'broken glass': max=0.014529  raw_boxes=576
+    - 'broken headlight': max=0.041766  raw_boxes=576
+    - 'deployed airbag': max=0.028385  raw_boxes=576
+    - 'bumper damage': max=0.013753  raw_boxes=576
+  Would survive prod floor 0.15: (none)
+
+  === Pass: bare_labels_direct ===
+  Labels: ['dent', 'scratch', 'broken glass', 'broken headlight', 'deployed airbag', 'bumper damage']
+  Raw (label, box, score) triples (pre-filter): 576
+  Score stats: min=2.605002578093263e-07, max=0.04176595062017441, mean=0.0029065608559736156, p50=0.0016420393949374557, p90=0.0063032901380211115, p99=0.025358595419675112
+  Counts >= thresholds: >=0.05:0  >=0.10:0  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'dent': max=0.025869  raw_boxes=178
+    - 'scratch': max=0.005269  raw_boxes=131
+    - 'broken glass': max=0.014529  raw_boxes=101
+    - 'broken headlight': max=0.041766  raw_boxes=28
+    - 'deployed airbag': max=0.028385  raw_boxes=55
+    - 'bumper damage': max=0.013753  raw_boxes=83
+  Would survive prod floor 0.15: (none)
+  Direct forward global max sigmoid(logit): 0.041766
+  Per-query max sigmoid(logit) across all patches:
+    - 'dent': 0.025869
+    - 'scratch': 0.006935
+    - 'broken glass': 0.014529
+    - 'broken headlight': 0.041766
+    - 'deployed airbag': 0.028385
+    - 'bumper damage': 0.013753
+
+  === Pass: templated_a_photo_of_a_pipeline ===
+  Labels: ['a photo of a dent', 'a photo of a scratch', 'a photo of a broken glass', 'a photo of a broken headlight', 'a photo of a deployed airbag', 'a photo of a bumper damage']
+  Raw (label, box, score) triples (pre-filter): 3456
+  Score stats: min=4.4177799196631895e-08, max=0.06921566277742386, mean=0.0022135928508098864, p50=0.0008019300585146993, p90=0.005477036582306027, p99=0.020704156719148034
+  Counts >= thresholds: >=0.05:3  >=0.10:0  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'a photo of a dent': max=0.018062  raw_boxes=576
+    - 'a photo of a scratch': max=0.027344  raw_boxes=576
+    - 'a photo of a broken glass': max=0.034294  raw_boxes=576
+    - 'a photo of a broken headlight': max=0.069216  raw_boxes=576
+    - 'a photo of a deployed airbag': max=0.057585  raw_boxes=576
+    - 'a photo of a bumper damage': max=0.036551  raw_boxes=576
+  Would survive prod floor 0.15: (none)
+
+  === Pass: templated_a_photo_of_a_direct ===
+  Labels: ['a photo of a dent', 'a photo of a scratch', 'a photo of a broken glass', 'a photo of a broken headlight', 'a photo of a deployed airbag', 'a photo of a bumper damage']
+  Raw (label, box, score) triples (pre-filter): 576
+  Score stats: min=6.384955213434296e-07, max=0.06921569257974625, mean=0.005632161274253317, p50=0.003127562813460827, p90=0.013975253328680992, p99=0.03444067854434252
+  Counts >= thresholds: >=0.05:3  >=0.10:0  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'a photo of a dent': max=0.018062  raw_boxes=127
+    - 'a photo of a scratch': max=0.027344  raw_boxes=213
+    - 'a photo of a broken glass': max=0.034294  raw_boxes=21
+    - 'a photo of a broken headlight': max=0.069216  raw_boxes=20
+    - 'a photo of a deployed airbag': max=0.057585  raw_boxes=60
+    - 'a photo of a bumper damage': max=0.036551  raw_boxes=135
+  Would survive prod floor 0.15: (none)
+  Direct forward global max sigmoid(logit): 0.069216
+  Per-query max sigmoid(logit) across all patches:
+    - 'a photo of a dent': 0.018062
+    - 'a photo of a scratch': 0.027344
+    - 'a photo of a broken glass': 0.034294
+    - 'a photo of a broken headlight': 0.069216
+    - 'a photo of a deployed airbag': 0.057585
+    - 'a photo of a bumper damage': 0.036551
+
+  Default-threshold pipeline call (as vision_agent): count=0 max_score=None
+
+========================================================================
+IMAGE: undamaged_car.jpg
+  file=35706B magic=b'\xff\xd8\xff\xe0' PIL format=JPEG mode=RGB->RGB size=[515, 388]
+  array shape=[388, 515, 3] dtype=uint8 min/max/mean=0/255/114.13 blank=False
+  model pixel_values shape=(1, 3, 768, 768) dtype=torch.float32 min/max/mean=-1.7923/2.1459/-0.0075
+  saved: {'rgb_png': 'scripts/debug_output/undamaged_car_rgb.png', 'model_input_png': 'scripts/debug_output/undamaged_car_model_input.png', 'pixel_values_npy': 'scripts/debug_output/undamaged_car_pixel_values.npy'}
+
+  === Pass: bare_labels_pipeline ===
+  Labels: ['dent', 'scratch', 'broken glass', 'broken headlight', 'deployed airbag', 'bumper damage']
+  Raw (label, box, score) triples (pre-filter): 3456
+  Score stats: min=1.9994936906186922e-07, max=0.09656869620084763, mean=0.0028047314967495967, p50=0.0015341702965088189, p90=0.006583238253369927, p99=0.02035534717142573
+  Counts >= thresholds: >=0.05:3  >=0.10:0  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'dent': max=0.054654  raw_boxes=576
+    - 'scratch': max=0.021828  raw_boxes=576
+    - 'broken glass': max=0.018015  raw_boxes=576
+    - 'broken headlight': max=0.096569  raw_boxes=576
+    - 'deployed airbag': max=0.037186  raw_boxes=576
+    - 'bumper damage': max=0.034982  raw_boxes=576
+  Would survive prod floor 0.15: (none)
+
+  === Pass: bare_labels_direct ===
+  Labels: ['dent', 'scratch', 'broken glass', 'broken headlight', 'deployed airbag', 'bumper damage']
+  Raw (label, box, score) triples (pre-filter): 576
+  Score stats: min=8.8607248471817e-07, max=0.09656869620084763, mean=0.006815261200690277, p50=0.0043005915358662605, p90=0.015158325433731079, p99=0.03727097064256668
+  Counts >= thresholds: >=0.05:3  >=0.10:0  >=0.15:0  >=0.20:0
+  Per-label max raw score:
+    - 'dent': max=0.054654  raw_boxes=172
+    - 'scratch': max=0.017345  raw_boxes=107
+    - 'broken glass': max=0.018015  raw_boxes=62
+    - 'broken headlight': max=0.096569  raw_boxes=62
+    - 'deployed airbag': max=0.037186  raw_boxes=102
+    - 'bumper damage': max=0.034982  raw_boxes=71
+  Would survive prod floor 0.15: (none)
+  Direct forward global max sigmoid(logit): 0.096569
+  Per-query max sigmoid(logit) across all patches:
+    - 'dent': 0.054654
+    - 'scratch': 0.021828
+    - 'broken glass': 0.018015
+    - 'broken headlight': 0.096569
+    - 'deployed airbag': 0.037186
+    - 'bumper damage': 0.034982
+
+  === Pass: templated_a_photo_of_a_pipeline ===
+  Labels: ['a photo of a dent', 'a photo of a scratch', 'a photo of a broken glass', 'a photo of a broken headlight', 'a photo of a deployed airbag', 'a photo of a bumper damage']
+  Raw (label, box, score) triples (pre-filter): 3456
+  Score stats: min=3.062516213958588e-07, max=0.20924970507621765, mean=0.004855448246642154, p50=0.0018787890439853072, p90=0.012769246473908424, p99=0.035591699741780655
+  Counts >= thresholds: >=0.05:11  >=0.10:3  >=0.15:1  >=0.20:1
+  Per-label max raw score:
+    - 'a photo of a dent': max=0.035892  raw_boxes=576
+    - 'a photo of a scratch': max=0.041124  raw_boxes=576
+    - 'a photo of a broken glass': max=0.033952  raw_boxes=576
+    - 'a photo of a broken headlight': max=0.209250  raw_boxes=576
+    - 'a photo of a deployed airbag': max=0.079105  raw_boxes=576
+    - 'a photo of a bumper damage': max=0.035346  raw_boxes=576
+  Would survive prod floor 0.15:
+    - 'a photo of a broken headlight' score=0.209250 box={'xmin': 202, 'ymin': 208, 'xmax': 333, 'ymax': 273}
+
+  === Pass: templated_a_photo_of_a_direct ===
+  Labels: ['a photo of a dent', 'a photo of a scratch', 'a photo of a broken glass', 'a photo of a broken headlight', 'a photo of a deployed airbag', 'a photo of a bumper damage']
+  Raw (label, box, score) triples (pre-filter): 576
+  Score stats: min=1.3148593325240654e-06, max=0.20924976468086243, mean=0.011374436657754098, p50=0.0067215850576758385, p90=0.02691672369837761, p99=0.060052935034036636
+  Counts >= thresholds: >=0.05:11  >=0.10:3  >=0.15:1  >=0.20:1
+  Per-label max raw score:
+    - 'a photo of a dent': max=0.027691  raw_boxes=168
+    - 'a photo of a scratch': max=0.041124  raw_boxes=205
+    - 'a photo of a broken glass': max=0.033952  raw_boxes=25
+    - 'a photo of a broken headlight': max=0.209250  raw_boxes=25
+    - 'a photo of a deployed airbag': max=0.079105  raw_boxes=90
+    - 'a photo of a bumper damage': max=0.032135  raw_boxes=63
+  Would survive prod floor 0.15:
+    - 'a photo of a broken headlight' score=0.209250 box={'xmin': 202.4478302001953, 'ymin': 208.62933349609375, 'xmax': 333.1417236328125, 'ymax': 273.406005859375}
+  Direct forward global max sigmoid(logit): 0.209250
+  Per-query max sigmoid(logit) across all patches:
+    - 'a photo of a dent': 0.035892
+    - 'a photo of a scratch': 0.041124
+    - 'a photo of a broken glass': 0.033952
+    - 'a photo of a broken headlight': 0.209250
+    - 'a photo of a deployed airbag': 0.079105
+    - 'a photo of a bumper damage': 0.035346
+
+  Default-threshold pipeline call (as vision_agent): count=0 max_score=None
+
+========================================================================
+Wrote JSON report: /app/scripts/debug_output/owlvit_raw_report.json
+Wrote NDJSON debug log: /app/debug-5f44e4.log
+Wrote visual dumps under: /app/scripts/debug_output

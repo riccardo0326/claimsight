@@ -1,0 +1,72 @@
+[
+  {
+    "image": "front_collision.jpg",
+    "count": 1,
+    "detections": [
+      {
+        "label": "crashed car",
+        "confidence": 0.45628297328948975
+      }
+    ]
+  },
+  {
+    "image": "inside_airbag_exploded.jpg",
+    "count": 5,
+    "detections": [
+      {
+        "label": "damaged car",
+        "confidence": 0.5441646575927734
+      },
+      {
+        "label": "damaged car",
+        "confidence": 0.5374237298965454
+      },
+      {
+        "label": "crashed car",
+        "confidence": 0.4806399941444397
+      },
+      {
+        "label": "crashed car",
+        "confidence": 0.4717372953891754
+      },
+      {
+        "label": "damaged car",
+        "confidence": 0.46611103415489197
+      }
+    ]
+  },
+  {
+    "image": "shattered_windshield.jpg",
+    "count": 1,
+    "detections": [
+      {
+        "label": "damaged car",
+        "confidence": 0.4939386248588562
+      }
+    ]
+  },
+  {
+    "image": "side_damage.jpg",
+    "count": 0,
+    "detections": []
+  },
+  {
+    "image": "totaled_car.jpg",
+    "count": 2,
+    "detections": [
+      {
+        "label": "damaged car",
+        "confidence": 0.6004449725151062
+      },
+      {
+        "label": "crashed car",
+        "confidence": 0.5178064107894897
+      }
+    ]
+  },
+  {
+    "image": "undamaged_car.jpg",
+    "count": 0,
+    "detections": []
+  }
+]

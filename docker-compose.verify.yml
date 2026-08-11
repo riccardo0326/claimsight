@@ -1,7 +1,15 @@
 # Temporary override for live vision verification only.
-# Usage: docker compose -f docker-compose.yml -f docker-compose.verify.yml up -d worker
+# Usage: docker compose -f docker-compose.yml -f docker-compose.verify.yml up -d
+# Builds without baking HF weights (volume hf_cache overlays them at runtime).
 services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.verify
   worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.verify
     volumes:
       - claim_storage:/data/storage
       - hf_cache:/cache/huggingface

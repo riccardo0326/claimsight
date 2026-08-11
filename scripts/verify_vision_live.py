@@ -338,7 +338,7 @@ def summarize_flag_patterns(results: list[ImageResult]) -> str:
         names = ", ".join(r.filename for r in detection_miss)
         reasons.append(
             f"{len(detection_miss)} image(s) missed expected detection labels "
-            f"({names}) — vocabulary miss or scores below the 0.15 floor."
+            f"({names}) — vocabulary miss or scores below the detection floor."
         )
     if severity_flags:
         names = ", ".join(r.filename for r in severity_flags)
@@ -358,7 +358,7 @@ def summarize_flag_patterns(results: list[ImageResult]) -> str:
             if scores and max(scores) < HIGH_CONFIDENCE:
                 reasons.append(
                     f"Control photo {r.filename} has detections only below "
-                    f"{HIGH_CONFIDENCE} — confidence floor of 0.15 may admit noise."
+                    f"{HIGH_CONFIDENCE} — detection floor may admit noise."
                 )
 
     if not reasons:
@@ -470,7 +470,7 @@ def render_report(results: list[ImageResult]) -> str:
                     f"**Note:** `{r.filename}` produced damage detection(s) below "
                     f"the high-confidence bar ({HIGH_CONFIDENCE}): "
                     f"{_format_detections(r.actual_detections)}. "
-                    "Still a false-positive at the 0.15 floor — worth watching."
+                    "Still a false-positive at the detection floor — worth watching."
                 )
             elif r.claim_error or any("timed out" in n or "failed" in n for n in r.notes):
                 lines.append(
@@ -487,7 +487,7 @@ def render_report(results: list[ImageResult]) -> str:
             lines.append("")
             lines.append(
                 "_No high-confidence (≥ 0.4) false positives on control, "
-                "but lower-score detections above the 0.15 floor may still indicate noise._"
+                "but lower-score detections above the detection floor may still indicate noise._"
             )
         elif not any_high and all(not r.actual_detections for r in controls):
             lines.append("")
@@ -568,7 +568,13 @@ def main() -> int:
     report = render_report(results)
     RESULTS_PATH.write_text(report, encoding="utf-8")
     print()
-    print(report)
+    # Windows consoles are often cp1252; keep RESULTS.md UTF-8 but print ASCII-safe.
+    ascii_report = (
+        report.replace("\u2265", ">=")
+        .replace("\u2264", "<=")
+        .replace("\u2014", "-")
+    )
+    print(ascii_report)
     print(f"\nWrote {RESULTS_PATH}", flush=True)
 
     if any(r.status == "FLAG" for r in results):

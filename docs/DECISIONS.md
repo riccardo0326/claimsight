@@ -149,9 +149,12 @@ fine-tuned or task-specific car-damage models), and
 
 1. **Zero-shot models** — no labeled car-damage dataset or fine-tuning is in
    scope yet:
-   - Zero-shot object detection: `google/owlvit-base-patch32` with fixed labels
-     `["dent", "scratch", "broken glass", "broken headlight", "deployed airbag",
-     "bumper damage"]`
+   - Zero-shot object detection: `google/owlvit-base-patch32` with OWL-ViT
+     prompt templating (`a photo of a/an {label}`) and scene/part labels
+     `["damaged car", "crashed car", "shattered windshield", "broken headlight",
+     "deployed airbag", "broken glass"]`. Fine-grained attributes (`dent`,
+     `scratch`, `bumper damage`) were dropped after real-photo calibration:
+     raw scores stayed ≪ 0.1 while templated scene labels cleared a raised floor.
    - Zero-shot image classification: `openai/clip-vit-base-patch32` for
      `severity_tier` with `["minor damage", "moderate damage", "severe damage"]`
    - VQA: `Salesforce/blip-vqa-base` via `BlipProcessor` +
@@ -165,7 +168,13 @@ fine-tuned or task-specific car-damage models), and
    score. Conservative default for triage.
 4. **`result.vision = null`** when no damage photos are uploaded (skip the
    agent entirely). Empty detections list is valid when photos exist but scores
-   stay below the 0.15 floor.
+   stay below the detection floor (`VISION_DETECTION_THRESHOLD`, default 0.45 —
+   set above undamaged false-positive peaks ~0.43 for `damaged car` when that
+   label is queried without a competing plain `car` anchor).
+5. **Known miss:** some real views (e.g. tight side-panel damage) still produce
+   no OWL-ViT hits above the floor; severity/VQA remain the fallback signal.
+   Regression guards for the floor, label list, and prompt templating live in
+   `tests/test_vision_agent.py` (default suite, mocked OWL-ViT — not `hf`).
 
 Do not swap in fine-tuned detectors mid-slice without updating this decision.
 True LangGraph parallel Vision∥Document branching is a later slice; the Celery

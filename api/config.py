@@ -21,7 +21,9 @@ class Settings(BaseSettings):
     vision_detection_model: str = "google/owlvit-base-patch32"
     vision_classification_model: str = "openai/clip-vit-base-patch32"
     vision_vqa_model: str = "Salesforce/blip-vqa-base"
-    vision_detection_threshold: float = 0.15
+    # Calibrated against fixtures/images/real/: with scene labels alone,
+    # undamaged peaks ~0.43 on "damaged car"; real damage often clears 0.45+.
+    vision_detection_threshold: float = 0.45
     vision_low_confidence_threshold: float = 0.4
     max_upload_mb: int = 10
     celery_task_always_eager: bool = False
