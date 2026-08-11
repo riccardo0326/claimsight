@@ -28,12 +28,13 @@ dependencies = [
   "sentence-transformers>=3.0.0",
   "llama-index-core>=0.12.0",
   "llama-index-embeddings-huggingface>=0.5.0",
+  "httpx>=0.28.0",
+  "tenacity>=9.0.0",
 ]
 
 [project.optional-dependencies]
 dev = [
   "pytest>=8.3.0",
-  "httpx>=0.28.0",
   "testcontainers>=4.0.0",
 ]
 
@@ -44,6 +45,7 @@ include = ["agents*", "api*", "db*", "worker*", "rag*"]
 testpaths = ["tests"]
 pythonpath = ["."]
 markers = [
-  "hf: tests that load real Hugging Face models — DocVQA / Vision zero-shot (slow, network on first run)",
+  "hf: tests that load real Hugging Face models — DocVQA / Vision / Fraud zero-shot (slow, network on first run)",
+  "live_api: tests that call real external HTTP APIs (NHTSA / Nominatim / NWS) — never in default suite",
 ]
-addopts = "-m \"not hf\""
+addopts = "-m \"not hf and not live_api\""

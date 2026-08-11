@@ -188,6 +188,8 @@ async def create_claim(
     estimate_pdf: UploadFile = File(...),
     # Real claims should require a narrative; empty allowed for Slice 1 compatibility.
     narrative: str = Form(""),
+    # Optional free-text location for NOAA weather (Slice 4). Missing → skip weather.
+    incident_location: str | None = Form(None),
     damage_photos: list[UploadFile] = File(default=[]),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
@@ -230,6 +232,8 @@ async def create_claim(
             claim_dir.rmdir()
         raise
 
+    location = (incident_location or "").strip() or None
+
     claim = Claim(
         id=claim_id,
         status=ClaimStatus.pending,
@@ -239,6 +243,7 @@ async def create_claim(
             "damage_photos": [str(p) for p in saved_photo_paths],
         },
         narrative=narrative or "",
+        incident_location=location,
         result=None,
     )
     db.add(claim)

@@ -179,3 +179,99 @@ fine-tuned or task-specific car-damage models), and
 Do not swap in fine-tuned detectors mid-slice without updating this decision.
 True LangGraph parallel Vision∥Document branching is a later slice; the Celery
 task runs Vision sequentially after Document for now.
+
+---
+
+## Slice 4 — External Verifiers + Fraud/Risk (2026-08)
+
+### D15. Optional `incident_location` on POST /claims
+
+**Spec §6.5 required:** VIN, incident date, incident location for External Verifiers.
+**Chose:** add optional form field `incident_location: str | None`, persisted on
+`claims.incident_location`. Do not infer location from PDFs or narrative in this
+slice.
+
+Missing location does **not** fail the claim: geocoding and weather are skipped
+and `weather_at_incident = None` (no `geocoding`/`weather` entries in
+`sources_failed` for a deliberate skip).
+
+### D16. NHTSA VIN decode chains to recalls/complaints
+
+Decode VIN via vPIC `DecodeVinValues` first. Recalls and complaints are queried
+only with resolved `make` / `model` / `model_year` from that decode — never with
+raw VIN alone. If decode fails or yields incomplete identity, skip
+recalls/complaints and record `nhtsa_vin` in `sources_failed`.
+
+### D17. Weather via Nominatim + NWS station observations
+
+1. Nominatim geocodes `incident_location` → lat/lon (descriptive User-Agent;
+   1 req/sec; 5s timeout).
+2. NOAA/NWS `api.weather.gov/points/{lat},{lon}` → nearest observation stations.
+3. `stations/{id}/observations?start=&end=` for the `incident_date` UTC day.
+
+**Field mapping:**
+- `condition` ← first non-empty `properties.textDescription`
+- `precipitation_mm` ← max of `precipitationLastHour|3Hours|6Hours` converted to
+  mm (NWS QuantitativeValues in meters → ×1000; inches → ×25.4)
+- `had_storm_event` ← True if precip ≥ `WEATHER_STORM_PRECIP_MM` (default 5.0) OR
+  text/presentWeather mentions thunder/storm/hail/tornado/severe
+
+If location or `incident_date` is missing, weather is skipped. API failures set
+`weather_at_incident = None` and add `weather` (or `geocoding`) to
+`sources_failed`. Never invent weather.
+
+### D18. `external_api_cache` (SQLite + Postgres)
+
+Table: `cache_key` (unique), `source`, `response_json` (PortableJSON),
+`fetched_at`, `expires_at` (nullable).
+
+| Source | Cache key | TTL |
+|---|---|---|
+| NHTSA VIN | `nhtsa_vin:{VIN}` | 24h (`NHTSA_CACHE_TTL_HOURS`) |
+| Recalls | `nhtsa_recalls:{make}:{model}:{year}` | 24h |
+| Complaints | `nhtsa_complaints:{make}:{model}:{year}` | 24h |
+| Geocoding | `geocoding:{normalized location}` | 24h |
+| Weather | `weather:{lat:.4f}:{lon:.4f}:{date}` | **none** (`expires_at=NULL`) |
+
+Only successful HTTP responses are cached. Created on SQLite and Postgres via
+`create_all` / explicit SQLite create (same pattern as `claims`).
+Recall/complaint lists are capped at 50 each when mapping into `VerifierOutput`
+so a single claim result stays reviewable.
+
+### D19. HTTP resilience
+
+All outbound calls: timeout 5s, max 2 attempts, Tenacity exponential backoff.
+Source-level failures populate `sources_failed` with stable ids
+(`nhtsa_vin`, `nhtsa_recalls`, `nhtsa_complaints`, `geocoding`, `weather`) and
+**never** fail the claim. Exception traces stay in logs, not in Pydantic output.
+
+### D20. Fraud/Risk: zero-shot model + heuristic score
+
+- Model: `typeform/distilbert-base-uncased-mnli` (`FRAUD_ZERO_SHOT_MODEL`) —
+  lightweight MNLI zero-shot compatible with the existing Transformers stack.
+- Candidate labels: consistent / inconsistent / possible staged damage /
+  weather mismatch / recall-related damage. Classifier is a **signal only**.
+- Deterministic rules: weather mismatch (narrative weather cause +
+  `had_storm_event is False` → severity `medium`); recall-related damage
+  (recall component token overlap with narrative/line items → severity `info`).
+- Risk score: weighted sum clamped to `[0, 1]` — staged 0.40, inconsistent 0.35,
+  weather rule 0.30, recall rule 0.10; classifier-only weather/recall use lower
+  weights. Matching rule + classifier evidence is not double-counted.
+  **Not statistically calibrated** — portfolio heuristic.
+
+Empty narrative → no classifier flags; rules may still fire.
+
+### D21. LangGraph remains deferred
+
+Architecture still targets a LangGraph orchestrator with parallel Vision ∥
+Document ∥ Verifiers. Slice 4 keeps the Celery task sequential:
+
+`Document → Vision → Verifiers → RAG → Fraud/Risk → persist`
+
+Fraud/Risk does not depend on RAG. True parallel branching stays a later slice.
+
+### D22. Result keys `verifiers` + `risk`
+
+`claim.result` gains `verifiers` (`VerifierOutput`) and `risk` (`RiskOutput`)
+alongside existing `document_agent`, `extraction_meta`, `vision`, `rag`. Nested
+shapes follow the Slice 4 task contracts (richer than the §6.5 ellipsis stubs).

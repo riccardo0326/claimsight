@@ -55,7 +55,7 @@ def get_db() -> Generator[Session, None, None]:
 def init_db() -> None:
     """Create tables if they do not exist (Alembic deferred to a later slice)."""
     from db.base import Base
-    from db.models import Claim, PolicyClause
+    from db.models import Claim, ExternalApiCache, PolicyClause
 
     eng = ensure_engine()
     if eng.dialect.name == "postgresql":
@@ -65,4 +65,5 @@ def init_db() -> None:
     else:
         # policy_clauses requires pgvector — skip on SQLite (Slice 1 tests).
         Claim.__table__.create(bind=eng, checkfirst=True)
+        ExternalApiCache.__table__.create(bind=eng, checkfirst=True)
         _ = PolicyClause  # keep import used for registration clarity

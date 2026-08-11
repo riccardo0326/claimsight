@@ -57,3 +57,46 @@ class VisionOutput(BaseModel):
     severity_confidence: float
     vqa_answers: dict[str, str] = Field(default_factory=dict)
     low_confidence: bool
+
+
+class NHTSARecall(BaseModel):
+    campaign_number: str
+    component: str
+    summary: str
+
+
+class NHTSAComplaint(BaseModel):
+    complaint_id: str
+    component: str
+    summary: str
+
+
+class WeatherAtIncident(BaseModel):
+    condition: str
+    precipitation_mm: float
+    had_storm_event: bool
+
+
+class VerifierOutput(BaseModel):
+    """External Verifiers contract (Slice 4). See PROJECT_SPEC.md §6.5 / DECISIONS.md."""
+
+    make: str | None = None
+    model: str | None = None
+    model_year: int | None = None
+    nhtsa_recalls: list[NHTSARecall] = Field(default_factory=list)
+    nhtsa_complaints: list[NHTSAComplaint] = Field(default_factory=list)
+    weather_at_incident: WeatherAtIncident | None = None
+    sources_failed: list[str] = Field(default_factory=list)
+
+
+class RiskFlag(BaseModel):
+    flag_type: str
+    rationale: str
+    severity: str
+
+
+class RiskOutput(BaseModel):
+    """Fraud/Risk Agent contract (Slice 4). See PROJECT_SPEC.md §6.4 / DECISIONS.md."""
+
+    flags: list[RiskFlag] = Field(default_factory=list)
+    risk_score: float = Field(ge=0.0, le=1.0)
