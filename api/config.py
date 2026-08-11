@@ -25,6 +25,17 @@ class Settings(BaseSettings):
     # undamaged peaks ~0.43 on "damaged car"; real damage often clears 0.45+.
     vision_detection_threshold: float = 0.45
     vision_low_confidence_threshold: float = 0.4
+    # Fraud/Risk zero-shot (MNLI); see DECISIONS.md Slice 4.
+    fraud_zero_shot_model: str = "typeform/distilbert-base-uncased-mnli"
+    # Outbound verifier HTTP (Nominatim + NWS require a descriptive User-Agent).
+    http_user_agent: str = (
+        "ClaimSight/0.1 (portfolio claims triage; contact: claimsight-dev@example.com)"
+    )
+    external_api_timeout_seconds: float = 5.0
+    external_api_max_attempts: int = 2
+    nhtsa_cache_ttl_hours: int = 24
+    # Precipitation (mm) at/above which weather is treated as a storm-like event.
+    weather_storm_precip_mm: float = 5.0
     max_upload_mb: int = 10
     celery_task_always_eager: bool = False
 

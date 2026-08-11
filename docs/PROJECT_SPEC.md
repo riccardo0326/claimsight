@@ -120,16 +120,34 @@ independently testable function/module conforming to this contract.
 
 - **Input:** claim narrative, Document Agent output, External Verifier output
 - **Output:** `RiskOutput { flags: [{flag_type, rationale, severity}], risk_score: float }`
-- **HF tasks:** Zero-Shot Classification, Text Classification
+  with `risk_score` constrained to `[0.0, 1.0]`
+- **HF tasks:** Zero-Shot Classification (`typeform/distilbert-base-uncased-mnli` by
+  default) plus deterministic cross-check rules (weather mismatch, recall-related).
+  See `DECISIONS.md` Slice 4 for score heuristic and severity choices.
 
 
 
 ### 6.5 External Verifiers
 
-- **Input:** VIN, incident date, incident location
-- **Output:** `VerifierOutput { nhtsa_recalls: [...], nhtsa_complaints: [...], weather_at_incident: {...} }`
-- **APIs:** NHTSA VIN Decoder, NHTSA Complaints/Recalls, NOAA/NWS Weather API
-- Not an HF task — plain REST calls, cached per VIN/date/location to avoid redundant calls.
+- **Input:** VIN (from Document Agent), incident date (from Document Agent),
+  optional `incident_location` (from `POST /claims` form — not inferred)
+- **Output:**
+  ```
+  VerifierOutput {
+    make: str | None
+    model: str | None
+    model_year: int | None
+    nhtsa_recalls: list[{campaign_number, component, summary}]
+    nhtsa_complaints: list[{complaint_id, component, summary}]
+    weather_at_incident: {condition, precipitation_mm, had_storm_event} | None
+    sources_failed: list[str]
+  }
+  ```
+- **APIs:** NHTSA VIN Decoder (vPIC), NHTSA Complaints/Recalls (by make/model/year
+  after decode), Nominatim geocoding, NOAA/NWS station observations for the
+  incident date. Responses cached in `external_api_cache` (see `DECISIONS.md`).
+- Not an HF task — plain REST calls via `httpx` + Tenacity; source failures degrade
+  into `sources_failed` and never fail the claim.
 
 
 

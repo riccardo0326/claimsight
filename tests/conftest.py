@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 
 from api.config import get_settings
 from agents.extractors.fake import fake_from_expected
-from agents.schemas import RAGOutput
+from agents.schemas import RAGOutput, RiskOutput, VerifierOutput
 from db.base import Base
 from db.session import configure_engine, init_db
 
@@ -119,6 +119,15 @@ def _make_api_client(
     if stub_vision:
         # Keep default pytest fast — Vision HF models are behind pytest -m hf.
         monkeypatch.setattr("worker.tasks.run_vision_agent", lambda _paths: None)
+    # External APIs + fraud HF model — stubbed for default offline suite.
+    monkeypatch.setattr(
+        "worker.tasks.run_verifiers",
+        lambda *_args, **_kwargs: VerifierOutput(),
+    )
+    monkeypatch.setattr(
+        "worker.tasks.run_fraud_agent",
+        lambda *_args, **_kwargs: RiskOutput(flags=[], risk_score=0.0),
+    )
 
     Base.metadata.drop_all(bind=db_session.engine)
     init_db()
@@ -222,6 +231,16 @@ def rag_client(tmp_path, monkeypatch, fake_extractor, pgvector_url, expected):
         ingest_file(SAMPLE_CLAUSES, db=db)
 
     _patch_fake_docvqa(monkeypatch, fake_extractor)
+
+    # Offline stubs for Slice 4 (real HTTP/HF covered in dedicated tests).
+    monkeypatch.setattr(
+        "worker.tasks.run_verifiers",
+        lambda *_args, **_kwargs: VerifierOutput(),
+    )
+    monkeypatch.setattr(
+        "worker.tasks.run_fraud_agent",
+        lambda *_args, **_kwargs: RiskOutput(flags=[], risk_score=0.0),
+    )
 
     from api.main import app
 

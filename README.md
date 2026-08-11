@@ -1,45 +1,50 @@
 # ClaimSight
 
-Multi-agent insurance claims triage. This repository currently ships **Slices 1–3**:
+Multi-agent insurance claims triage. This repository currently ships **Slices 1–4**:
 ingestion via FastAPI + Celery, Document Agent field extraction, a RAG Agent that
 retrieves policy clauses from Postgres + pgvector (hard-filtered by `policy_id`),
-and a Vision Agent that extracts damage signal from optional claim photos using
-zero-shot Hugging Face models.
+a Vision Agent for optional damage photos, External Verifiers (NHTSA + Nominatim +
+NWS), and a Fraud/Risk Agent (zero-shot signal + deterministic cross-checks).
 
-Later slices (Fraud/Risk, Adjudicator, LangGraph parallel branching, Langfuse, UI)
-are intentionally out of scope here.
+Later slices (Adjudicator, LangGraph parallel branching, Langfuse, UI) are
+intentionally out of scope here.
 
 ## Architecture (this slice)
 
 ```
-POST /claims (policy.pdf + estimate.pdf + narrative + optional damage_photos)
+POST /claims (policy.pdf + estimate.pdf + narrative
+              + optional damage_photos + optional incident_location)
         │
         ▼
    FastAPI ──► Postgres (status=pending) ──► Celery/Redis
                                                     │
                                                     ▼
                                             Document Agent
-                                            ├─ LayoutLM DocVQA (policy fields)
-                                            └─ pdfplumber tables (line items)
                                                     │
                                                     ▼
                                               Vision Agent  (skipped if no photos)
-                                            ├─ OWL-ViT zero-shot detection
-                                            ├─ CLIP severity classification
-                                            └─ BLIP VQA (fixed yes/no questions)
+                                                    │
+                                                    ▼
+                                           External Verifiers
+                                            ├─ NHTSA VIN → recalls/complaints
+                                            ├─ Nominatim geocode (if location)
+                                            └─ NWS observations (if location+date)
                                                     │
                                                     ▼
                                               RAG Agent
-                                            └─ MiniLM embed + pgvector
-                                               WHERE policy_id = ?
+                                                    │
+                                                    ▼
+                                           Fraud/Risk Agent
+                                            ├─ zero-shot narrative labels
+                                            └─ weather / recall rules
                                                     │
                                                     ▼
                               GET /claims/{id}  ◄── completed + document_agent
-                                                     + vision + rag
+                                                     + vision + verifiers
+                                                     + rag + risk
 ```
 
-Vision runs **sequentially after** Document Agent for now. True LangGraph parallel
-Vision∥Document branching is a later slice.
+Pipeline remains **sequential** Celery (LangGraph parallel branching is deferred).
 
 ## Prerequisites
 
@@ -49,8 +54,8 @@ Vision∥Document branching is a later slice.
 
 ## Quick start (Docker)
 
-If upgrading from an earlier slice, recreate the Postgres volume once so the
-pgvector image and new columns apply:
+If upgrading from an earlier slice, recreate the Postgres volume once so new
+columns/tables apply:
 
 ```bash
 docker compose down -v
@@ -78,43 +83,18 @@ docker compose exec api python -m rag.ingest fixtures/sample_policy_clauses.json
 docker compose exec api python -m rag.ingest fixtures/other_policy_clauses.json
 ```
 
-(`other_policy_clauses.json` exists to prove retrieval never leaks across policies.)
-
-### Submit a sample claim (with narrative)
+### Submit a sample claim (with narrative + location)
 
 ```bash
 curl -X POST http://localhost:8000/claims \
   -F "policy_pdf=@fixtures/sample_policy.pdf" \
   -F "estimate_pdf=@fixtures/sample_estimate.pdf" \
-  -F "narrative=Front-end collision damaged the bumper and headlight; please review collision coverage."
+  -F "narrative=Front-end collision damaged the bumper and headlight; please review collision coverage." \
+  -F "incident_location=Washington, DC"
 ```
 
-### Submit with damage photos
-
-Images are optional. Repeat `-F "damage_photos=@..."` for each file (`.jpg` / `.png`):
-
-```bash
-curl -X POST http://localhost:8000/claims \
-  -F "policy_pdf=@fixtures/sample_policy.pdf" \
-  -F "estimate_pdf=@fixtures/sample_estimate.pdf" \
-  -F "narrative=Front-end collision; please review damage photos." \
-  -F "damage_photos=@fixtures/images/synthetic_1.jpg" \
-  -F "damage_photos=@fixtures/images/synthetic_2.jpg" \
-  -F "damage_photos=@fixtures/images/synthetic_3.jpg"
-```
-
-Example response:
-
-```json
-{"claim_id":"…","status":"pending"}
-```
-
-A claim with **no** photos still completes; `result.vision` is `null`.
-
-**Synthetic fixtures are structural proof only** — they will not produce meaningful
-zero-shot detections. For a live sanity check with real confidences, drop 2–3
-real car-damage photos into `fixtures/images/real/` and follow
-[fixtures/images/README.md](fixtures/images/README.md).
+`incident_location` is optional. If omitted, geocoding/weather are skipped and
+`result.verifiers.weather_at_incident` is `null`.
 
 ### Poll for the result
 
@@ -126,9 +106,10 @@ When processing finishes, `status` is `completed` and `result` contains:
 
 - `document_agent` — `DocumentOutput` fields
 - `extraction_meta` — DocVQA confidences / misses
-- `vision` — `VisionOutput` (`detections`, `severity_tier`, `vqa_answers`,
-  `low_confidence`), or `null` when no photos were uploaded
-- `rag.retrieved_clauses` — `[{clause_id, text, similarity_score}, …]` scoped to the claim's `policy_id`
+- `vision` — `VisionOutput` or `null` when no photos
+- `verifiers` — `VerifierOutput` (NHTSA + optional weather; `sources_failed` on degrade)
+- `rag.retrieved_clauses` — clauses scoped to the claim's `policy_id`
+- `risk` — `RiskOutput` (`flags`, `risk_score` in `[0, 1]`)
 
 ## Local development / tests
 
@@ -140,75 +121,34 @@ source .venv/bin/activate
 pip install -r requirements.txt
 pip install -e ".[dev]"
 
-# Generate / refresh synthetic fixture PDFs and images (already committed)
 python fixtures/generate_fixtures.py
 python fixtures/generate_image_fixtures.py
 
-# Full suite: Slice 1 tests use SQLite; RAG tests spin up pgvector via testcontainers
-# (Docker required, no GPU). Vision HF tests are deselected by default.
+# Default suite: offline (no real NHTSA/Nominatim/NWS; no HF downloads)
 pytest
-```
 
-Optional real Hugging Face smoke tests (DocVQA + Vision models; downloads on first run):
-
-```bash
+# Optional real Hugging Face smoke tests
 pytest -m hf
+
+# Optional real external API tests (network)
+pytest -m live_api
+# or: python scripts/verify_verifiers_live.py
 ```
-
-## Sample fixtures
-
-`fixtures/sample_policy.pdf` and `fixtures/sample_estimate.pdf` are **synthetic**
-documents generated by `fixtures/generate_fixtures.py` (reportlab). Clause JSON
-under `fixtures/*_policy_clauses.json` is also synthetic. Damage photos under
-`fixtures/images/synthetic_*.jpg` are PIL silhouettes for pipeline smoke tests
-only — see [fixtures/images/README.md](fixtures/images/README.md). No real customer PII.
-
-| Field | Value |
-|-------|-------|
-| policy_id | `POL-2024-0098213` |
-| coverage_limits | collision 50000 / comprehensive 25000 / liability 100000 |
-| deductible | 1000.0 |
-| vin | `1HGCM82633A004352` |
-| incident_date | 2024-03-14 |
-| line_items | 4 rows (bumper, headlight, labor, paint) |
 
 ## Configuration
 
-See [`.env.example`](.env.example). Important variables:
+See [`.env.example`](.env.example). Slice 4 additions:
 
-- `DB_URL` — SQLAlchemy URL (Postgres+pgvector in Docker, SQLite for Slice 1 unit tests)
-- `REDIS_URL` — Celery broker + result backend
-- `STORAGE_DIR` — shared volume for uploaded PDFs and damage photos
-- `DOC_QA_MODEL` — default `impira/layoutlm-document-qa`
-- `DOC_QA_MIN_CONFIDENCE` — answers below this score become `None` (default `0.5`)
-- `EMBEDDING_MODEL` — default `sentence-transformers/all-MiniLM-L6-v2`
-- `RAG_TOP_K` — number of clauses returned (default `5`)
-- `VISION_DETECTION_MODEL` — default `google/owlvit-base-patch32`
-- `VISION_CLASSIFICATION_MODEL` — default `openai/clip-vit-base-patch32`
-- `VISION_VQA_MODEL` — default `Salesforce/blip-vqa-base`
-- `VISION_DETECTION_THRESHOLD` — detection score floor (default `0.45`)
-- `VISION_LOW_CONFIDENCE_THRESHOLD` — sets `low_confidence` on severity (default `0.4`)
-- `MAX_UPLOAD_MB` — upload size limit per file (default `10`)
-
-## Document + RAG + Vision notes
-
-- Policy fields use Hugging Face `document-question-answering` with
-  `word_boxes` from pdfplumber (no Tesseract OCR required).
-- Estimate `line_items` use pdfplumber table extraction — a **placeholder** for
-  a proper Table Question Answering model in a later task.
-- Clause embeddings use LlamaIndex `HuggingFaceEmbedding` (MiniLM); retrieval is
-  SQLAlchemy + pgvector with a hard `WHERE policy_id = ?` filter.
-- `retrieved_precedents` from the full §6.3 contract is deferred (see
-  [docs/DECISIONS.md](docs/DECISIONS.md)).
-- Vision uses zero-shot OWL-ViT / CLIP / BLIP (no fine-tuned car-damage model yet;
-  see D14 in [docs/DECISIONS.md](docs/DECISIONS.md)). Severity across photos uses
-  max-severity-wins.
-- Schema creation uses `Base.metadata.create_all()`; Alembic migrations are
-  deferred.
+- `FRAUD_ZERO_SHOT_MODEL` — default `typeform/distilbert-base-uncased-mnli`
+- `HTTP_USER_AGENT` — required by Nominatim / NWS
+- `EXTERNAL_API_TIMEOUT_SECONDS` / `EXTERNAL_API_MAX_ATTEMPTS`
+- `NHTSA_CACHE_TTL_HOURS` — VIN/recalls/complaints/geocode TTL (weather has none)
+- `WEATHER_STORM_PRECIP_MM` — storm heuristic threshold
 
 ## Docs
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md)
 - [docs/DECISIONS.md](docs/DECISIONS.md)
+- [docs/VERIFIERS_LIVE_VERIFY.md](docs/VERIFIERS_LIVE_VERIFY.md) — live NHTSA/Nominatim/NWS checks
 - [fixtures/images/README.md](fixtures/images/README.md) — manual Vision verification

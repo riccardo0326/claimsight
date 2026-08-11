@@ -7,7 +7,9 @@ import uuid
 from datetime import datetime, timezone
 
 from agents.document_agent import run_document_agent
+from agents.fraud_agent import run_fraud_agent
 from agents.rag_agent import run_rag_agent
+from agents.verifiers import run_verifiers
 from agents.vision_agent import run_vision_agent
 from db.models import Claim, ClaimStatus
 from db import session as db_session
@@ -18,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 @celery_app.task(name="worker.tasks.process_claim", bind=True, max_retries=0)
 def process_claim(self, claim_id: str) -> dict:
-    """Load claim, run Document → Vision → RAG, persist result or failure."""
+    """Load claim, run Document → Vision → Verifiers → RAG → Fraud/Risk, persist."""
     db_session.ensure_engine()
     assert db_session.SessionLocal is not None
     db = db_session.SessionLocal()
@@ -47,6 +49,12 @@ def process_claim(self, claim_id: str) -> dict:
         image_paths = claim.input_paths.get("damage_photos") or []
         vision_out = run_vision_agent(image_paths) if image_paths else None
 
+        verifier_out = run_verifiers(
+            output,
+            incident_location=claim.incident_location,
+            db=db,
+        )
+
         rag_out = run_rag_agent(
             policy_id=output.policy_id or "",
             narrative=claim.narrative or "",
@@ -54,11 +62,19 @@ def process_claim(self, claim_id: str) -> dict:
             db=db,
         )
 
+        risk_out = run_fraud_agent(
+            claim.narrative or "",
+            output,
+            verifier_out,
+        )
+
         claim.result = {
             "document_agent": doc_dump,
             "extraction_meta": meta,
             "vision": vision_out.model_dump(mode="json") if vision_out else None,
+            "verifiers": verifier_out.model_dump(mode="json"),
             "rag": rag_out.model_dump(mode="json"),
+            "risk": risk_out.model_dump(mode="json"),
         }
         claim.status = ClaimStatus.completed
         claim.updated_at = datetime.now(timezone.utc)

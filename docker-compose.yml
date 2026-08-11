@@ -39,6 +39,11 @@ services:
       DOC_QA_MIN_CONFIDENCE: "0.5"
       EMBEDDING_MODEL: sentence-transformers/all-MiniLM-L6-v2
       RAG_TOP_K: "5"
+      FRAUD_ZERO_SHOT_MODEL: typeform/distilbert-base-uncased-mnli
+      HTTP_USER_AGENT: "ClaimSight/0.1 (portfolio claims triage; contact: claimsight-dev@example.com)"
+      EXTERNAL_API_TIMEOUT_SECONDS: "5"
+      EXTERNAL_API_MAX_ATTEMPTS: "2"
+      NHTSA_CACHE_TTL_HOURS: "24"
       MAX_UPLOAD_MB: "10"
       CELERY_TASK_ALWAYS_EAGER: "false"
       HF_HOME: /cache/huggingface
@@ -62,6 +67,11 @@ services:
       DOC_QA_MIN_CONFIDENCE: "0.5"
       EMBEDDING_MODEL: sentence-transformers/all-MiniLM-L6-v2
       RAG_TOP_K: "5"
+      FRAUD_ZERO_SHOT_MODEL: typeform/distilbert-base-uncased-mnli
+      HTTP_USER_AGENT: "ClaimSight/0.1 (portfolio claims triage; contact: claimsight-dev@example.com)"
+      EXTERNAL_API_TIMEOUT_SECONDS: "5"
+      EXTERNAL_API_MAX_ATTEMPTS: "2"
+      NHTSA_CACHE_TTL_HOURS: "24"
       MAX_UPLOAD_MB: "10"
       CELERY_TASK_ALWAYS_EAGER: "false"
       HF_HOME: /cache/huggingface

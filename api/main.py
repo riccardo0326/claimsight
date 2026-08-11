@@ -28,7 +28,7 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(
     title="ClaimSight",
-    description="Insurance claims triage — ingestion + Document Agent slice",
+    description="Insurance claims triage — multimodal agents through Fraud/Risk (Slice 4)",
     version="0.1.0",
     lifespan=lifespan,
 )
