@@ -1,0 +1,9 @@
+# Temporary override for live vision verification only.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.verify.yml up -d worker
+services:
+  worker:
+    volumes:
+      - claim_storage:/data/storage
+      - hf_cache:/cache/huggingface
+      # Live-mount source so Slice 3 code is present without a full image rebuild.
+      - ./:/app
