@@ -1,0 +1,57 @@
+{
+  "front_collision.jpg": {
+    "narrative": "Front-end collision, hit a guardrail",
+    "expected_detections_any_of": ["dent", "bumper damage", "broken headlight"],
+    "expected_severity_min": "moderate",
+    "expected_vqa": {
+      "Is the vehicle drivable?": "no strong expectation"
+    }
+  },
+  "side_damage.jpg": {
+    "narrative": "Side-impact damage to doors and body panel",
+    "expected_detections_any_of": ["dent", "scratch", "bumper damage"],
+    "expected_severity_min": "moderate",
+    "expected_vqa": {
+      "Is the vehicle drivable?": "no strong expectation"
+    }
+  },
+  "shattered_windshield.jpg": {
+    "narrative": "Windshield shattered after impact with road debris",
+    "expected_detections_any_of": ["broken glass"],
+    "expected_severity_min": "moderate",
+    "expected_vqa": {
+      "Is there broken glass visible?": "yes preferred"
+    }
+  },
+  "inside_airbag_exploded.jpg": {
+    "narrative": "Cabin view after collision; airbags deployed",
+    "expected_detections_any_of": ["deployed airbag"],
+    "expected_severity_min": "moderate",
+    "expected_vqa": {
+      "Is the airbag deployed?": "yes preferred"
+    }
+  },
+  "totaled_car.jpg": {
+    "narrative": "Heavy multi-point damage consistent with a total loss",
+    "expected_detections_any_of": [
+      "dent",
+      "bumper damage",
+      "broken glass",
+      "broken headlight",
+      "deployed airbag"
+    ],
+    "expected_severity_min": "severe",
+    "expected_vqa": {
+      "Is the vehicle drivable?": "no preferred"
+    }
+  },
+  "undamaged_car.jpg": {
+    "narrative": "No damage, routine documentation photo",
+    "expected_detections_any_of": [],
+    "expected_severity_max": "minor",
+    "note": "false-positive check - flag if confident damage is detected",
+    "expected_vqa": {
+      "Is the vehicle drivable?": "no strong expectation"
+    }
+  }
+}
