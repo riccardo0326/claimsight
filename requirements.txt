@@ -19,5 +19,5 @@ llama-index-core==0.12.33
 llama-index-embeddings-huggingface==0.5.4
 httpx==0.28.1
 tenacity==9.1.2
-pytest==8.3.5
+pytest==9.0.3
 testcontainers==4.10.0
