@@ -39,7 +39,7 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["agents*", "api*", "db*", "worker*", "rag*"]
+include = ["agents*", "api*", "db*", "worker*", "rag*", "eval*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

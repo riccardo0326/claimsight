@@ -1,13 +1,14 @@
 # ClaimSight
 
-Multi-agent insurance claims triage. This repository currently ships **Slices 1–5**:
+Multi-agent insurance claims triage. This repository currently ships **Slices 1–6**:
 ingestion via FastAPI + Celery, Document Agent field extraction, a RAG Agent that
 retrieves policy clauses from Postgres + pgvector (hard-filtered by `policy_id`),
 a Vision Agent for optional damage photos, External Verifiers (NHTSA + Nominatim +
-NWS), a Fraud/Risk Agent (zero-shot signal + deterministic cross-checks), and an
-Adjudicator (frontier LLM synthesis + citation grounding guardrails).
+NWS), a Fraud/Risk Agent (zero-shot signal + deterministic cross-checks), an
+Adjudicator (frontier LLM synthesis + citation grounding guardrails), and a
+**golden dataset + offline-first eval harness** for measurable Adjudicator quality.
 
-Later slices (LangGraph parallel branching, Langfuse, eval harness, UI) are
+Later slices (LangGraph parallel branching, Langfuse, CI eval gate, UI) are
 intentionally out of scope here.
 
 ## Architecture (this slice)
@@ -48,11 +49,16 @@ POST /claims (policy.pdf + estimate.pdf + narrative
                               GET /claims/{id}  ◄── completed + document_agent
                                                      + vision + verifiers
                                                      + rag + risk + adjudication
+
+Offline eval (Slice 6):
+  fixtures/golden/manifest.jsonl ──► eval runner ──► Adjudicator+guardrails
+                                                 ──► eval/reports/latest.{json,md}
 ```
 
 Pipeline remains **sequential** Celery (LangGraph parallel branching is deferred).
 Human review is `result.adjudication.decision = needs_review` (claim `status`
-stays `completed`).
+stays `completed`). Eval scores Adjudicator+guardrails on **canned upstream**
+snapshots (not a full Celery/HF re-run).
 
 ## Prerequisites
 
@@ -121,6 +127,20 @@ When processing finishes, `status` is `completed` and `result` contains:
 - `adjudication` — `ClaimReport` (`decision`, `confidence`, `cited_clauses`,
   `risk_flags`, `reasoning_summary`). Human review is `decision=needs_review`.
 
+## Golden eval (Slice 6)
+
+```bash
+# Deterministic oracle LLM — no network; writes eval/reports/latest.*
+python scripts/run_eval.py --mode fake
+
+# Live frontier LLM (requires OPENAI_API_KEY)
+python scripts/run_eval.py --mode live
+```
+
+Metrics: post-guardrail citation hallucination rate, decision accuracy, fraud-flag
+precision/recall. See [docs/EVAL.md](docs/EVAL.md) and
+[fixtures/golden/README.md](fixtures/golden/README.md).
+
 ## Local development / tests
 
 ```bash
@@ -133,6 +153,7 @@ pip install -e ".[dev]"
 
 python fixtures/generate_fixtures.py
 python fixtures/generate_image_fixtures.py
+# optional: python fixtures/golden/build_manifest.py
 
 # Default suite: offline (no real NHTSA/Nominatim/NWS; no HF; no OpenAI)
 pytest
@@ -168,6 +189,8 @@ See [`.env.example`](.env.example). Notable settings:
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md)
 - [docs/DECISIONS.md](docs/DECISIONS.md)
+- [docs/EVAL.md](docs/EVAL.md) — Slice 6 golden eval harness
 - [docs/VERIFIERS_LIVE_VERIFY.md](docs/VERIFIERS_LIVE_VERIFY.md) — live NHTSA/Nominatim/NWS checks
 - [docs/ADJUDICATOR_LIVE_VERIFY.md](docs/ADJUDICATOR_LIVE_VERIFY.md) — live OpenAI Adjudicator checks
 - [fixtures/images/README.md](fixtures/images/README.md) — manual Vision verification
+- [fixtures/golden/README.md](fixtures/golden/README.md) — golden dataset schema

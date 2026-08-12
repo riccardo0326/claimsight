@@ -1,0 +1,719 @@
+{
+  "mode": "fake",
+  "prompt_version": "prompts/adjudicator_v1.md",
+  "model": "oracle-fake",
+  "metrics": {
+    "n_cases": 50,
+    "decision_accuracy": 1.0,
+    "hallucination_rate": 0.0,
+    "fraud_precision": 1.0,
+    "fraud_recall": 1.0,
+    "fraud_true_positives": 8,
+    "fraud_false_positives": 0,
+    "fraud_false_negatives": 0,
+    "fraud_true_negatives": 42
+  },
+  "cases": [
+    {
+      "claim_id": "g001_collision_approve",
+      "predicted_decision": "approve",
+      "ground_truth_decision": "approve",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.8,
+      "reasoning_summary": "Oracle fake LLM for g001_collision_approve: propose approve."
+    },
+    {
+      "claim_id": "g002_collision_approve_multicite",
+      "predicted_decision": "approve",
+      "ground_truth_decision": "approve",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001",
+        "COL-002"
+      ],
+      "confidence": 0.8,
+      "reasoning_summary": "Oracle fake LLM for g002_collision_approve_multicite: propose approve."
+    },
+    {
+      "claim_id": "g003_glass_comp_approve",
+      "predicted_decision": "approve",
+      "ground_truth_decision": "approve",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COM-001",
+        "COM-002"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g003_glass_comp_approve: propose approve."
+    },
+    {
+      "claim_id": "g004_hail_comp_approve",
+      "predicted_decision": "approve",
+      "ground_truth_decision": "approve",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COM-001"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g004_hail_comp_approve: propose approve."
+    },
+    {
+      "claim_id": "g005_animal_comp_approve",
+      "predicted_decision": "approve",
+      "ground_truth_decision": "approve",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COM-001"
+      ],
+      "confidence": 0.8,
+      "reasoning_summary": "Oracle fake LLM for g005_animal_comp_approve: propose approve."
+    },
+    {
+      "claim_id": "g006_theft_comp_approve",
+      "predicted_decision": "approve",
+      "ground_truth_decision": "approve",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COM-001"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g006_theft_comp_approve: propose approve."
+    },
+    {
+      "claim_id": "g007_vandalism_approve",
+      "predicted_decision": "approve",
+      "ground_truth_decision": "approve",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COM-001"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g007_vandalism_approve: propose approve."
+    },
+    {
+      "claim_id": "g008_collision_approve_empty_vision",
+      "predicted_decision": "approve",
+      "ground_truth_decision": "approve",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g008_collision_approve_empty_vision: propose approve."
+    },
+    {
+      "claim_id": "g009_collision_approve_null_vision",
+      "predicted_decision": "approve",
+      "ground_truth_decision": "approve",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g009_collision_approve_null_vision: propose approve."
+    },
+    {
+      "claim_id": "g010_collision_approve_with_weather_ok",
+      "predicted_decision": "approve",
+      "ground_truth_decision": "approve",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.8,
+      "reasoning_summary": "Oracle fake LLM for g010_collision_approve_with_weather_ok: propose approve."
+    },
+    {
+      "claim_id": "g011_glass_only_approve",
+      "predicted_decision": "approve",
+      "ground_truth_decision": "approve",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COM-002"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g011_glass_only_approve: propose approve."
+    },
+    {
+      "claim_id": "g012_collision_approve_low_risk",
+      "predicted_decision": "approve",
+      "ground_truth_decision": "approve",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.8,
+      "reasoning_summary": "Oracle fake LLM for g012_collision_approve_low_risk: propose approve."
+    },
+    {
+      "claim_id": "g013_intentional_deny",
+      "predicted_decision": "deny",
+      "ground_truth_decision": "deny",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "EXC-001"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g013_intentional_deny: propose deny."
+    },
+    {
+      "claim_id": "g014_fraud_void_deny",
+      "predicted_decision": "deny",
+      "ground_truth_decision": "deny",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "EXC-001"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g014_fraud_void_deny: propose deny."
+    },
+    {
+      "claim_id": "g015_wear_tear_deny",
+      "predicted_decision": "deny",
+      "ground_truth_decision": "deny",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "EXC-002"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g015_wear_tear_deny: propose deny."
+    },
+    {
+      "claim_id": "g016_mechanical_deny",
+      "predicted_decision": "deny",
+      "ground_truth_decision": "deny",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "EXC-002"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g016_mechanical_deny: propose deny."
+    },
+    {
+      "claim_id": "g017_freezing_deny",
+      "predicted_decision": "deny",
+      "ground_truth_decision": "deny",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "EXC-002"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g017_freezing_deny: propose deny."
+    },
+    {
+      "claim_id": "g018_road_tire_deny",
+      "predicted_decision": "deny",
+      "ground_truth_decision": "deny",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "EXC-002"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g018_road_tire_deny: propose deny."
+    },
+    {
+      "claim_id": "g019_intentional_fire_deny",
+      "predicted_decision": "deny",
+      "ground_truth_decision": "deny",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "EXC-001"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g019_intentional_fire_deny: propose deny."
+    },
+    {
+      "claim_id": "g020_intentional_vandal_self_deny",
+      "predicted_decision": "deny",
+      "ground_truth_decision": "deny",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "EXC-001"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g020_intentional_vandal_self_deny: propose deny."
+    },
+    {
+      "claim_id": "g021_empty_rag_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [],
+      "confidence": 0.35,
+      "reasoning_summary": "Oracle fake LLM for g021_empty_rag_review: propose needs_review."
+    },
+    {
+      "claim_id": "g022_sources_failed_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COM-001"
+      ],
+      "confidence": 0.4,
+      "reasoning_summary": "Oracle fake LLM for g022_sources_failed_review: propose needs_review."
+    },
+    {
+      "claim_id": "g023_low_conf_policy_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.35,
+      "reasoning_summary": "Oracle fake LLM for g023_low_conf_policy_review: propose needs_review."
+    },
+    {
+      "claim_id": "g024_low_conf_limits_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.35,
+      "reasoning_summary": "Oracle fake LLM for g024_low_conf_limits_review: propose needs_review."
+    },
+    {
+      "claim_id": "g025_conflicting_story_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001",
+        "COM-001"
+      ],
+      "confidence": 0.5,
+      "reasoning_summary": "Oracle fake LLM for g025_conflicting_story_review: propose needs_review."
+    },
+    {
+      "claim_id": "g026_missing_date_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.5,
+      "reasoning_summary": "Oracle fake LLM for g026_missing_date_review: propose needs_review."
+    },
+    {
+      "claim_id": "g027_vin_decode_failed_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.4,
+      "reasoning_summary": "Oracle fake LLM for g027_vin_decode_failed_review: propose needs_review."
+    },
+    {
+      "claim_id": "g028_ambiguous_glass_collision_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COM-002",
+        "COL-001"
+      ],
+      "confidence": 0.5,
+      "reasoning_summary": "Oracle fake LLM for g028_ambiguous_glass_collision_review: propose needs_review."
+    },
+    {
+      "claim_id": "g029_high_estimate_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-002"
+      ],
+      "confidence": 0.5,
+      "reasoning_summary": "Oracle fake LLM for g029_high_estimate_review: propose needs_review."
+    },
+    {
+      "claim_id": "g030_no_narrative_detail_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.5,
+      "reasoning_summary": "Oracle fake LLM for g030_no_narrative_detail_review: propose needs_review."
+    },
+    {
+      "claim_id": "g031_partial_rag_unclear_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COM-001"
+      ],
+      "confidence": 0.5,
+      "reasoning_summary": "Oracle fake LLM for g031_partial_rag_unclear_review: propose needs_review."
+    },
+    {
+      "claim_id": "g032_liability_third_party_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "LIA-001"
+      ],
+      "confidence": 0.5,
+      "reasoning_summary": "Oracle fake LLM for g032_liability_third_party_review: propose needs_review."
+    },
+    {
+      "claim_id": "g033_recall_context_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.5,
+      "reasoning_summary": "Oracle fake LLM for g033_recall_context_review: propose needs_review."
+    },
+    {
+      "claim_id": "g034_empty_vision_and_weak_docs_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.5,
+      "reasoning_summary": "Oracle fake LLM for g034_empty_vision_and_weak_docs_review: propose needs_review."
+    },
+    {
+      "claim_id": "g035_policy_id_null_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.35,
+      "reasoning_summary": "Oracle fake LLM for g035_policy_id_null_review: propose needs_review."
+    },
+    {
+      "claim_id": "g036_weather_mismatch_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": true,
+      "ground_truth_fraud_flag": true,
+      "cited_clauses": [
+        "COM-001"
+      ],
+      "confidence": 0.4,
+      "reasoning_summary": "Oracle fake LLM for g036_weather_mismatch_review: propose needs_review."
+    },
+    {
+      "claim_id": "g037_staged_damage_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": true,
+      "ground_truth_fraud_flag": true,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.4,
+      "reasoning_summary": "Oracle fake LLM for g037_staged_damage_review: propose needs_review."
+    },
+    {
+      "claim_id": "g038_inconsistent_claim_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": true,
+      "ground_truth_fraud_flag": true,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.4,
+      "reasoning_summary": "Oracle fake LLM for g038_inconsistent_claim_review: propose needs_review."
+    },
+    {
+      "claim_id": "g039_weather_mismatch_with_vision",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": true,
+      "ground_truth_fraud_flag": true,
+      "cited_clauses": [
+        "COM-001"
+      ],
+      "confidence": 0.5,
+      "reasoning_summary": "Oracle fake LLM for g039_weather_mismatch_with_vision: propose needs_review."
+    },
+    {
+      "claim_id": "g040_staged_high_severity",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": true,
+      "ground_truth_fraud_flag": true,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.4,
+      "reasoning_summary": "Oracle fake LLM for g040_staged_high_severity: propose needs_review."
+    },
+    {
+      "claim_id": "g041_inconsistent_plus_recall",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": true,
+      "ground_truth_fraud_flag": true,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.4,
+      "reasoning_summary": "Oracle fake LLM for g041_inconsistent_plus_recall: propose needs_review."
+    },
+    {
+      "claim_id": "g042_weather_mismatch_deny_attempt",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": true,
+      "ground_truth_fraud_flag": true,
+      "cited_clauses": [
+        "EXC-001"
+      ],
+      "confidence": 0.4,
+      "reasoning_summary": "Oracle fake LLM for g042_weather_mismatch_deny_attempt: propose needs_review."
+    },
+    {
+      "claim_id": "g043_staged_empty_rag_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": true,
+      "ground_truth_fraud_flag": true,
+      "cited_clauses": [],
+      "confidence": 0.25,
+      "reasoning_summary": "Oracle fake LLM for g043_staged_empty_rag_review: propose needs_review."
+    },
+    {
+      "claim_id": "g044_cross_policy_cite_trap",
+      "predicted_decision": "approve",
+      "ground_truth_decision": "approve",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.8,
+      "reasoning_summary": "Oracle fake LLM for g044_cross_policy_cite_trap: propose approve."
+    },
+    {
+      "claim_id": "g045_other_clause_not_in_rag",
+      "predicted_decision": "approve",
+      "ground_truth_decision": "approve",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g045_other_clause_not_in_rag: propose approve."
+    },
+    {
+      "claim_id": "g046_multicite_approve_edge",
+      "predicted_decision": "approve",
+      "ground_truth_decision": "approve",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001",
+        "COL-002"
+      ],
+      "confidence": 0.8,
+      "reasoning_summary": "Oracle fake LLM for g046_multicite_approve_edge: propose approve."
+    },
+    {
+      "claim_id": "g047_deny_with_collision_also_retrieved",
+      "predicted_decision": "deny",
+      "ground_truth_decision": "deny",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "EXC-001"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g047_deny_with_collision_also_retrieved: propose deny."
+    },
+    {
+      "claim_id": "g048_empty_detections_not_deny",
+      "predicted_decision": "approve",
+      "ground_truth_decision": "approve",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COL-001"
+      ],
+      "confidence": 0.7,
+      "reasoning_summary": "Oracle fake LLM for g048_empty_detections_not_deny: propose approve."
+    },
+    {
+      "claim_id": "g049_sources_failed_not_negative",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "COM-001"
+      ],
+      "confidence": 0.4,
+      "reasoning_summary": "Oracle fake LLM for g049_sources_failed_not_negative: propose needs_review."
+    },
+    {
+      "claim_id": "g050_claims_procedure_only_review",
+      "predicted_decision": "needs_review",
+      "ground_truth_decision": "needs_review",
+      "decision_match": true,
+      "hallucinated": false,
+      "predicted_fraud_flag": false,
+      "ground_truth_fraud_flag": false,
+      "cited_clauses": [
+        "CLM-001"
+      ],
+      "confidence": 0.5,
+      "reasoning_summary": "Oracle fake LLM for g050_claims_procedure_only_review: propose needs_review."
+    }
+  ]
+}
