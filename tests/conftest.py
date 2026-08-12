@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 
 from api.config import get_settings
 from agents.extractors.fake import fake_from_expected
-from agents.schemas import RAGOutput, RiskOutput, VerifierOutput
+from agents.schemas import ClaimReport, RAGOutput, RiskOutput, VerifierOutput
 from db.base import Base
 from db.session import configure_engine, init_db
 
@@ -128,6 +128,17 @@ def _make_api_client(
         "worker.tasks.run_fraud_agent",
         lambda *_args, **_kwargs: RiskOutput(flags=[], risk_score=0.0),
     )
+    # Frontier LLM — stubbed for default offline suite (empty RAG ⇒ review).
+    monkeypatch.setattr(
+        "worker.tasks.run_adjudicator",
+        lambda **_kwargs: ClaimReport(
+            decision="needs_review",
+            confidence=0.35,
+            cited_clauses=[],
+            risk_flags=[],
+            reasoning_summary="Stubbed adjudicator for default pytest (no OpenAI call).",
+        ),
+    )
 
     Base.metadata.drop_all(bind=db_session.engine)
     init_db()
@@ -232,7 +243,7 @@ def rag_client(tmp_path, monkeypatch, fake_extractor, pgvector_url, expected):
 
     _patch_fake_docvqa(monkeypatch, fake_extractor)
 
-    # Offline stubs for Slice 4 (real HTTP/HF covered in dedicated tests).
+    # Offline stubs for Slice 4/5 (real HTTP/HF/LLM covered in dedicated tests).
     monkeypatch.setattr(
         "worker.tasks.run_verifiers",
         lambda *_args, **_kwargs: VerifierOutput(),
@@ -240,6 +251,16 @@ def rag_client(tmp_path, monkeypatch, fake_extractor, pgvector_url, expected):
     monkeypatch.setattr(
         "worker.tasks.run_fraud_agent",
         lambda *_args, **_kwargs: RiskOutput(flags=[], risk_score=0.0),
+    )
+    monkeypatch.setattr(
+        "worker.tasks.run_adjudicator",
+        lambda **_kwargs: ClaimReport(
+            decision="needs_review",
+            confidence=0.35,
+            cited_clauses=[],
+            risk_flags=[],
+            reasoning_summary="Stubbed adjudicator for rag_client pytest.",
+        ),
     )
 
     from api.main import app

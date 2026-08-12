@@ -268,6 +268,8 @@ Document ∥ Verifiers. Slice 4 keeps the Celery task sequential:
 
 `Document → Vision → Verifiers → RAG → Fraud/Risk → persist`
 
+(Slice 5 appends Adjudicator — see D29.)
+
 Fraud/Risk does not depend on RAG. True parallel branching stays a later slice.
 
 ### D22. Result keys `verifiers` + `risk`
@@ -275,3 +277,78 @@ Fraud/Risk does not depend on RAG. True parallel branching stays a later slice.
 `claim.result` gains `verifiers` (`VerifierOutput`) and `risk` (`RiskOutput`)
 alongside existing `document_agent`, `extraction_meta`, `vision`, `rag`. Nested
 shapes follow the Slice 4 task contracts (richer than the §6.5 ellipsis stubs).
+
+---
+
+## Slice 5 — Adjudicator + Citation Guardrails (2026-08)
+
+### D23. Frontier provider: OpenAI Chat Completions via httpx
+
+**Chose:** OpenAI-compatible Chat Completions (`ADJUDICATOR_BASE_URL`, default
+`https://api.openai.com/v1`) using existing `httpx` + Tenacity — no official
+OpenAI SDK. Env: `OPENAI_API_KEY`, `ADJUDICATOR_MODEL` (default `gpt-4o`),
+`ADJUDICATOR_TIMEOUT_SECONDS` (default 60).
+
+Matches the locked “GPT-4-class for Adjudicator” stack without expanding deps.
+
+### D24. Structured output: JSON + Pydantic; no silent repair
+
+The model is prompted for JSON-only `ClaimReport`. We parse and
+`ClaimReport.model_validate`. Malformed JSON / invalid enum / missing fields →
+deterministic `needs_review` fallback (`fallback_needs_review`). Do not invent
+approve/deny from broken output.
+
+### D25. Persist key `adjudication`; status stays `completed`
+
+`claim.result.adjudication` holds the `ClaimReport` JSON
+(`model_dump(mode="json")`). Human review is expressed as
+`decision=needs_review` inside that object.
+
+**Architecture** mentioned claim status `needs_human_review`. **Slice 5 does
+not** add that enum value — claim `status` remains `completed` when the
+pipeline finishes (including review decisions). Polling clients read
+`result.adjudication.decision`.
+
+### D26. `risk_flags` copied from upstream Fraud/Risk
+
+`ClaimReport.risk_flags` is always overwritten with `RiskOutput.flags` after
+the LLM returns. The Adjudicator does not re-run Fraud/Risk or invent flags.
+Risk score / flags are signals — never automatic proof of fraud / auto-deny.
+
+### D27. Deterministic confidence heuristic (not calibrated)
+
+Final `confidence` is recomputed by `compute_confidence` after guardrails:
+
+- start `0.55`
+- `+0.15` if RAG non-empty, citations valid, and ≥1 citation present
+- `+0.05` if RAG usable but decision is not approve and cites may be empty
+- `+0.10` if vision present and (detections non-empty OR not `low_confidence`)
+- `-0.15` if critical low-confidence extraction (`policy_id` / `coverage_limits.*`)
+- `-0.10` if any `sources_failed`
+- `-0.20` if `needs_review` / guardrail override
+- `-0.10` if any medium/high risk flag
+- clamp `[0, 1]`
+
+LLM self-reported confidence is ignored for the persisted value.
+
+### D28. Guardrail policy (approve / deny / review)
+
+- **Citation subset (hard):** `cited_clauses ⊆ retrieved clause_ids` or force review.
+- **Approve** requires non-empty RAG and ≥1 valid citation; empty RAG ≠ deny.
+- **Deny** requires retrieved policy evidence (empty RAG → review, not deny).
+- Empty Vision `detections` / `vision=null` never alone force deny (no-signal ≠ no damage).
+- `sources_failed` is missing evidence (lowers confidence), not a negative finding.
+- Material risk flags (`weather mismatch`, `possible staged damage`,
+  `inconsistent claim`) block approve → `needs_review`.
+- Low-confidence critical extraction blocks approve → `needs_review`.
+
+### D29. Celery order after Slice 5
+
+`Document → Vision → Verifiers → RAG → Fraud/Risk → Adjudicator → guardrails → persist`
+
+LangGraph remains deferred (D21). LLM/schema/guardrail failures persist
+`adjudication.decision=needs_review` and keep claim `status=completed` — they do
+not fail the claim.
+
+Prompt template: `prompts/adjudicator_v1.md`. Live verify:
+`python scripts/verify_adjudicator_live.py` / `pytest -m live_llm`.

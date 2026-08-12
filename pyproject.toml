@@ -47,5 +47,6 @@ pythonpath = ["."]
 markers = [
   "hf: tests that load real Hugging Face models — DocVQA / Vision / Fraud zero-shot (slow, network on first run)",
   "live_api: tests that call real external HTTP APIs (NHTSA / Nominatim / NWS) — never in default suite",
+  "live_llm: tests that call the real frontier LLM (OpenAI) — never in default suite",
 ]
-addopts = "-m \"not hf and not live_api\""
+addopts = "-m \"not hf and not live_api and not live_llm\""

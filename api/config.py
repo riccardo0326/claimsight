@@ -36,6 +36,11 @@ class Settings(BaseSettings):
     nhtsa_cache_ttl_hours: int = 24
     # Precipitation (mm) at/above which weather is treated as a storm-like event.
     weather_storm_precip_mm: float = 5.0
+    # Adjudicator frontier LLM (OpenAI Chat Completions via httpx). See DECISIONS.md.
+    openai_api_key: str | None = None
+    adjudicator_model: str = "gpt-4o"
+    adjudicator_base_url: str = "https://api.openai.com/v1"
+    adjudicator_timeout_seconds: float = 60.0
     max_upload_mb: int = 10
     celery_task_always_eager: bool = False
 
