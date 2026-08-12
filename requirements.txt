@@ -4,7 +4,7 @@ python-multipart==0.0.31
 celery[redis]==5.5.2
 redis==5.2.1
 sqlalchemy==2.0.40
-psycopg2-binary==2.9.10
+psycopg2-binary==2.9.12
 pgvector==0.4.1
 pydantic==2.11.3
 pydantic-settings==2.8.1
