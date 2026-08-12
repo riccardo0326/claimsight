@@ -352,3 +352,57 @@ not fail the claim.
 
 Prompt template: `prompts/adjudicator_v1.md`. Live verify:
 `python scripts/verify_adjudicator_live.py` / `pytest -m live_llm`.
+
+---
+
+## Slice 6 — Golden Dataset + Eval Harness (2026-08)
+
+Completes the unfinished half of PROJECT_SPEC milestone 4: a synthetic golden
+set (~50) and a first measurable Adjudicator eval run. Langfuse, CI gates,
+LangGraph, RAGAS, and UI remain deferred.
+
+### D30. Eval surface is Adjudicator + guardrails on canned upstream
+
+**Chose:** Score `run_adjudicator` against golden cases that embed canned
+`document_agent` / `extraction_meta` / `vision` / `verifiers` / `rag` / `risk`
+snapshots. Do **not** require full Celery + HF + live NHTSA for the default
+eval path.
+
+Keeps the harness fast, offline-testable, and focused on the decision/citation
+contract. Full pipeline E2E remains covered by Slice 4/5 integration tests.
+
+### D31. Golden size ~50; schema adapts §8.1 to shipped contracts
+
+**Spec §8.1:** singular `ground_truth_clause_id`; target later grows to ≥150.
+**Chose:** `fixtures/golden/manifest.jsonl` with ~50 synthetic cases;
+`ground_truth.clause_ids: list[str]`; `ground_truth.decision` ∈
+`approve|deny|needs_review` (D25); `ground_truth.fraud_flag: bool` = any
+material risk flag in `{weather mismatch, possible staged damage,
+inconsistent claim}` (same set as Adjudicator guardrails).
+
+Regenerate via `python fixtures/golden/build_manifest.py`. Transparency about
+synthetic data is intentional (PROJECT_SPEC §7).
+
+### D32. Metrics in Slice 6; faithfulness / cost / CI deferred
+
+**Measured now:**
+
+- Post-guardrail citation hallucination rate (target **0%**)
+- Decision accuracy (exact match; report baseline — do not block the slice on
+  ≥85% live accuracy yet)
+- Fraud-flag precision/recall vs `fraud_flag` (baseline only)
+
+**Deferred:** RAGAS / LLM-judge faithfulness ≥ 0.85; cost-per-claim and P95
+latency (with Langfuse); GitHub Actions §8.3 PR gate; expanding to 150–300
+cases.
+
+### D33. Default pytest stays offline; live eval is opt-in
+
+**Chose:** `python scripts/run_eval.py --mode fake` uses an oracle stub LLM
+keyed to each case’s ground truth (legal citations only) for harness smoke and
+the checked-in sample report under `eval/reports/`. `--mode live` uses the
+existing OpenAI client (`OPENAI_API_KEY`). Default `pytest` covers
+`tests/test_eval_*.py` only — never the full live golden run.
+
+Package: `eval/` (`schema`, `metrics`, `runner`, `report`). Docs:
+`docs/EVAL.md`, `fixtures/golden/README.md`.
