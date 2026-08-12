@@ -1,7 +1,8 @@
-"""ClaimSight golden-set eval harness (Slice 6)."""
+"""ClaimSight golden-set eval harness (Slice 6+) with CI gates (Slice 7)."""
 
 from __future__ import annotations
 
+from eval.gate import check_gates, load_baseline
 from eval.metrics import (
     CaseScore,
     aggregate_metrics,
@@ -19,6 +20,8 @@ __all__ = [
     "GroundTruth",
     "UpstreamSnapshot",
     "aggregate_metrics",
+    "check_gates",
+    "load_baseline",
     "load_manifest",
     "predicted_fraud_flag",
     "run_eval",

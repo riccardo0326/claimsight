@@ -1,15 +1,16 @@
 # ClaimSight
 
-Multi-agent insurance claims triage. This repository currently ships **Slices 1–6**:
+Multi-agent insurance claims triage. This repository currently ships **Slices 1–7**:
 ingestion via FastAPI + Celery, Document Agent field extraction, a RAG Agent that
 retrieves policy clauses from Postgres + pgvector (hard-filtered by `policy_id`),
 a Vision Agent for optional damage photos, External Verifiers (NHTSA + Nominatim +
 NWS), a Fraud/Risk Agent (zero-shot signal + deterministic cross-checks), an
-Adjudicator (frontier LLM synthesis + citation grounding guardrails), and a
-**golden dataset + offline-first eval harness** for measurable Adjudicator quality.
+Adjudicator (frontier LLM synthesis + citation grounding guardrails), a
+**golden dataset + offline-first eval harness**, and a **GitHub Actions CI gate**
+(offline pytest + fake golden eval).
 
-Later slices (LangGraph parallel branching, Langfuse, CI eval gate, UI) are
-intentionally out of scope here.
+Later slices (LangGraph parallel branching, Langfuse, UI) are intentionally out
+of scope here.
 
 ## Architecture (this slice)
 
@@ -50,9 +51,10 @@ POST /claims (policy.pdf + estimate.pdf + narrative
                                                      + vision + verifiers
                                                      + rag + risk + adjudication
 
-Offline eval (Slice 6):
+Offline eval (Slices 6–7):
   fixtures/golden/manifest.jsonl ──► eval runner ──► Adjudicator+guardrails
                                                  ──► eval/reports/latest.{json,md}
+                                                 ──► --gate vs baseline_fake.json (CI)
 ```
 
 Pipeline remains **sequential** Celery (LangGraph parallel branching is deferred).
@@ -127,19 +129,22 @@ When processing finishes, `status` is `completed` and `result` contains:
 - `adjudication` — `ClaimReport` (`decision`, `confidence`, `cited_clauses`,
   `risk_flags`, `reasoning_summary`). Human review is `decision=needs_review`.
 
-## Golden eval (Slice 6)
+## Golden eval + CI gate (Slices 6–7)
 
 ```bash
 # Deterministic oracle LLM — no network; writes eval/reports/latest.*
 python scripts/run_eval.py --mode fake
 
-# Live frontier LLM (requires OPENAI_API_KEY)
+# Same + fail if hallucination > 0% or accuracy drops > 2pp vs baseline
+python scripts/run_eval.py --mode fake --gate
+
+# Live frontier LLM (requires OPENAI_API_KEY) — not used in CI
 python scripts/run_eval.py --mode live
 ```
 
-Metrics: post-guardrail citation hallucination rate, decision accuracy, fraud-flag
-precision/recall. See [docs/EVAL.md](docs/EVAL.md) and
-[fixtures/golden/README.md](fixtures/golden/README.md).
+GitHub Actions (`.github/workflows/ci.yml`) runs default `pytest` and the fake
+eval gate on every PR and on pushes to `main`. Metrics and baseline policy:
+[docs/EVAL.md](docs/EVAL.md), [fixtures/golden/README.md](fixtures/golden/README.md).
 
 ## Local development / tests
 
@@ -189,7 +194,7 @@ See [`.env.example`](.env.example). Notable settings:
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md)
 - [docs/DECISIONS.md](docs/DECISIONS.md)
-- [docs/EVAL.md](docs/EVAL.md) — Slice 6 golden eval harness
+- [docs/EVAL.md](docs/EVAL.md) — golden eval harness + CI gate (Slices 6–7)
 - [docs/VERIFIERS_LIVE_VERIFY.md](docs/VERIFIERS_LIVE_VERIFY.md) — live NHTSA/Nominatim/NWS checks
 - [docs/ADJUDICATOR_LIVE_VERIFY.md](docs/ADJUDICATOR_LIVE_VERIFY.md) — live OpenAI Adjudicator checks
 - [fixtures/images/README.md](fixtures/images/README.md) — manual Vision verification

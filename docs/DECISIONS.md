@@ -406,3 +406,44 @@ existing OpenAI client (`OPENAI_API_KEY`). Default `pytest` covers
 
 Package: `eval/` (`schema`, `metrics`, `runner`, `report`). Docs:
 `docs/EVAL.md`, `fixtures/golden/README.md`.
+
+---
+
+## Slice 7 — CI Eval Gate (2026-08)
+
+Wires the Slice 6 harness into GitHub Actions as an offline-first PR/main gate.
+Langfuse, model routing/cost docs, live OpenAI CI, RAGAS, LangGraph, and UI
+remain deferred.
+
+### D34. Offline CI only (no secrets)
+
+**Chose:** `.github/workflows/ci.yml` runs default `pytest` + 
+`python scripts/run_eval.py --mode fake --gate` on `pull_request` and pushes
+to `main`. No `OPENAI_API_KEY`, no `hf` / `live_api` / `live_llm` markers.
+
+Keeps CI deterministic and free of SaaS secrets. Live golden accuracy stays a
+local/opt-in concern.
+
+### D35. Partial §8.3 gates + checked-in baseline
+
+**Implemented:**
+
+- Fail if post-guardrail `hallucination_rate > 0`
+- Fail if `decision_accuracy` drops **> 0.02** vs
+  `eval/reports/baseline_fake.json`
+
+**Deferred:** faithfulness regression (> 0.05) until RAGAS/LLM-judge exists.
+
+Baseline updates are intentional PRs when golden labels or oracle expectations
+change deliberately — do not silently rewrite the baseline on every run.
+
+### D36. Oracle accuracy gate is harness protection, not live quality
+
+With `--mode fake`, the oracle stub proposes ground-truth decisions, so
+accuracy is usually ~1.0. The accuracy gate mainly catches harness / GT
+breakage. Citation hallucination + `tests/test_eval_*.py` (including the
+hallucinating-LLM → `needs_review` case) are the real guardrail regression
+nets. Do not claim live Adjudicator accuracy is CI-gated until a live job
+exists.
+
+Helper: `eval/gate.py`. Dependabot: `package-ecosystem: pip`.
