@@ -208,11 +208,28 @@
     btnSubmit.disabled = true;
     try {
       const res = await fetch("/claims", { method: "POST", body });
-      const payload = await res.json().catch(() => ({}));
+      const rawText = await res.text();
+      let payload = null;
+      if (rawText) {
+        try {
+          payload = JSON.parse(rawText);
+        } catch {
+          payload = null;
+        }
+      }
       if (!res.ok) {
-        const detail = payload.detail ?? JSON.stringify(payload);
+        let detail = payload?.detail;
+        if (detail == null || detail === "") {
+          detail = rawText || `(empty body)`;
+        }
+        if (typeof detail !== "string") {
+          detail = JSON.stringify(detail, null, 2);
+        }
+        throw new Error(`POST /claims failed (${res.status}): ${detail}`);
+      }
+      if (!payload?.claim_id) {
         throw new Error(
-          typeof detail === "string" ? detail : JSON.stringify(detail, null, 2)
+          `POST /claims returned no claim_id: ${rawText || "(empty body)"}`
         );
       }
       showResult(payload.claim_id);

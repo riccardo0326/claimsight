@@ -52,6 +52,41 @@ def get_db() -> Generator[Session, None, None]:
         db.close()
 
 
+def _ensure_claim_columns(eng: Engine) -> None:
+    """Add columns introduced after the initial claims table (no Alembic yet).
+
+    ``create_all`` does not ALTER existing tables, so older Docker volumes miss
+    later-slice columns and POST /claims fails with a 500.
+    """
+    dialect = eng.dialect.name
+    alters: list[str]
+    if dialect == "postgresql":
+        alters = [
+            "ALTER TABLE claims ADD COLUMN IF NOT EXISTS narrative TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE claims ADD COLUMN IF NOT EXISTS incident_location TEXT",
+        ]
+    elif dialect == "sqlite":
+        # SQLite has no IF NOT EXISTS for ADD COLUMN — probe first.
+        with eng.connect() as conn:
+            rows = conn.execute(text("PRAGMA table_info(claims)")).fetchall()
+        existing = {row[1] for row in rows}  # row[1] = name
+        alters = []
+        if "narrative" not in existing:
+            alters.append(
+                "ALTER TABLE claims ADD COLUMN narrative TEXT NOT NULL DEFAULT ''"
+            )
+        if "incident_location" not in existing:
+            alters.append("ALTER TABLE claims ADD COLUMN incident_location TEXT")
+    else:
+        return
+
+    if not alters:
+        return
+    with eng.begin() as conn:
+        for stmt in alters:
+            conn.execute(text(stmt))
+
+
 def init_db() -> None:
     """Create tables if they do not exist (Alembic deferred to a later slice)."""
     from db.base import Base
@@ -62,8 +97,10 @@ def init_db() -> None:
         with eng.begin() as conn:
             conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
         Base.metadata.create_all(bind=eng)
+        _ensure_claim_columns(eng)
     else:
         # policy_clauses requires pgvector — skip on SQLite (Slice 1 tests).
         Claim.__table__.create(bind=eng, checkfirst=True)
         ExternalApiCache.__table__.create(bind=eng, checkfirst=True)
+        _ensure_claim_columns(eng)
         _ = PolicyClause  # keep import used for registration clarity
