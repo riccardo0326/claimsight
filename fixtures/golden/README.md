@@ -56,8 +56,9 @@ python fixtures/golden/build_manifest.py
 
 ```bash
 python scripts/run_eval.py --mode fake
+python scripts/run_eval.py --mode fake --gate
 # optional live Adjudicator:
 python scripts/run_eval.py --mode live
 ```
 
-See `docs/EVAL.md` and `docs/DECISIONS.md` (Slice 6).
+See `docs/EVAL.md` and `docs/DECISIONS.md` (Slices 6–7).

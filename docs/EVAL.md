@@ -1,16 +1,18 @@
-# Slice 6 — Eval harness
+# Eval harness + CI gate (Slices 6–7)
 
-Offline-first scoring of **Adjudicator + citation guardrails** against the synthetic golden set in `fixtures/golden/`.
+Offline-first scoring of **Adjudicator + citation guardrails** against the synthetic golden set in `fixtures/golden/`, with a GitHub Actions gate on PRs and `main`.
 
 ## What is measured
 
-| Metric | Definition | Slice 6 target |
-|--------|------------|----------------|
-| Citation hallucination rate | Post-guardrail: `cited_clauses ⊈ retrieved clause_ids` | **0%** (hard) |
-| Decision accuracy | Exact match vs `ground_truth.decision` | Report baseline (≥85% aspirational; not a CI gate yet) |
-| Fraud-flag precision / recall | Material risk flags vs `ground_truth.fraud_flag` | Report baseline only |
+| Metric | Definition | Gate |
+|--------|------------|------|
+| Citation hallucination rate | Post-guardrail: `cited_clauses ⊈ retrieved clause_ids` | **Fail if > 0%** |
+| Decision accuracy | Exact match vs `ground_truth.decision` | **Fail if drop > 0.02** vs `eval/reports/baseline_fake.json` |
+| Fraud-flag precision / recall | Material risk flags vs `ground_truth.fraud_flag` | Report only (not gated) |
 
-Deferred (later slices): RAGAS/faithfulness, Langfuse cost/latency, GitHub Actions §8.3 CI gate, full Celery/HF E2E scoring.
+Deferred: RAGAS/faithfulness CI delta, Langfuse cost/latency, live OpenAI eval in CI, full Celery/HF E2E scoring, golden ≥150.
+
+**Accuracy caveat:** `--mode fake` uses an oracle stub keyed to ground truth, so accuracy is usually ~1.0. The accuracy gate protects harness/GT consistency; it is not a live model quality gate (see DECISIONS D36).
 
 ## Eval surface
 
@@ -19,10 +21,13 @@ Each golden case includes canned upstream agent outputs. The harness calls `agen
 ## Commands
 
 ```bash
-# Deterministic oracle LLM (no network) — harness smoke + checked-in sample report
+# Deterministic oracle LLM (no network)
 python scripts/run_eval.py --mode fake
 
-# Live frontier LLM (requires OPENAI_API_KEY)
+# Same + CI gates vs checked-in baseline (exit 1 on failure)
+python scripts/run_eval.py --mode fake --gate
+
+# Live frontier LLM (requires OPENAI_API_KEY) — not used in CI
 python scripts/run_eval.py --mode live
 
 # Smoke a few cases
@@ -31,8 +36,29 @@ python scripts/run_eval.py --mode fake --limit 5
 
 Reports land in `eval/reports/latest.json` and `eval/reports/latest.md`.
 
+### Refreshing the baseline
+
+When you intentionally change golden labels or oracle expectations:
+
+```bash
+python scripts/run_eval.py --mode fake
+cp eval/reports/latest.json eval/reports/baseline_fake.json
+```
+
+Commit the updated `baseline_fake.json` in the same PR and explain why.
+
+## CI
+
+Workflow: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)
+
+- Python 3.12 on `ubuntu-latest`
+- `pytest` (default markers: no HF / live APIs / live LLM)
+- `python scripts/run_eval.py --mode fake --gate`
+- Triggers: all `pull_request`s and pushes to `main`
+- No repo secrets required
+
 ## Pytest
 
-Default suite covers metric math and a small offline runner subset (`tests/test_eval_*.py`). Full live golden runs stay opt-in via `pytest -m live_llm` / the script above.
+Default suite covers metric math, runner subset, and gate unit tests (`tests/test_eval_*.py`). Full live golden runs stay opt-in via `pytest -m live_llm` / `--mode live`.
 
-See `docs/DECISIONS.md` Slice 6 and `fixtures/golden/README.md`.
+See `docs/DECISIONS.md` Slices 6–7 and `fixtures/golden/README.md`.

@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-and-eval:
+    name: pytest + fake eval gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # CPU torch first (matches Dockerfile; avoids heavy CUDA default wheels)
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+          pip install -e ".[dev]"
+
+      - name: Ensure PDF / image fixtures
+        run: |
+          python fixtures/generate_fixtures.py
+          python fixtures/generate_image_fixtures.py
+
+      - name: Default pytest (offline)
+        run: pytest
+
+      - name: Golden eval gate (fake / offline)
+        run: python scripts/run_eval.py --mode fake --gate

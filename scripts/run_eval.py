@@ -1,7 +1,8 @@
-"""Run Slice 6 golden eval (Adjudicator + guardrails on canned upstream).
+"""Run Slice 6/7 golden eval (Adjudicator + guardrails on canned upstream).
 
 Examples:
   python scripts/run_eval.py --mode fake
+  python scripts/run_eval.py --mode fake --gate
   python scripts/run_eval.py --mode live
 """
 
@@ -16,12 +17,13 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from api.config import get_settings
+from eval.gate import check_gates, load_baseline
 from eval.report import write_report
 from eval.runner import load_manifest, run_eval
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="ClaimSight Slice 6 golden eval")
+    parser = argparse.ArgumentParser(description="ClaimSight golden eval + optional CI gate")
     parser.add_argument(
         "--manifest",
         type=Path,
@@ -46,6 +48,17 @@ def main() -> int:
         default=None,
         help="Optional cap on number of cases (smoke)",
     )
+    parser.add_argument(
+        "--gate",
+        action="store_true",
+        help="Fail (exit 1) if hallucination or accuracy gates trip vs baseline",
+    )
+    parser.add_argument(
+        "--baseline",
+        type=Path,
+        default=ROOT / "eval" / "reports" / "baseline_fake.json",
+        help="Checked-in EvalReport JSON used when --gate is set",
+    )
     args = parser.parse_args()
 
     cases = load_manifest(args.manifest)
@@ -65,6 +78,21 @@ def main() -> int:
         f"hallucination_rate={m.hallucination_rate:.3f} "
         f"fraud_P={m.fraud_precision} fraud_R={m.fraud_recall}"
     )
+
+    if args.gate:
+        baseline = load_baseline(args.baseline)
+        failures = check_gates(m, baseline)
+        if failures:
+            print("GATE FAILED:", file=sys.stderr)
+            for reason in failures:
+                print(f"  - {reason}", file=sys.stderr)
+            return 1
+        print(
+            f"GATE PASSED vs {args.baseline} "
+            f"(hallucination_rate={m.hallucination_rate:.3f}, "
+            f"decision_accuracy={m.decision_accuracy:.3f})"
+        )
+
     return 0
 
 
