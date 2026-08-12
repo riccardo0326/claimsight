@@ -11,8 +11,10 @@ pydantic-settings==2.8.1
 python-dateutil==2.9.0.post0
 pdfplumber==0.11.6
 reportlab==4.4.0
-transformers==5.5.0
-# torch is installed separately in the Dockerfile from the CPU wheel index
+transformers==4.51.3
+# Keep transformers<5: sentence-transformers==4.1.0 requires transformers>=4.41,<5.0
+# (Dependabot must not bump transformers to 5.x without also bumping sentence-transformers.)
+# torch is installed separately in the Dockerfile / CI from the CPU wheel index
 Pillow==12.3.0
 sentence-transformers==4.1.0
 llama-index-core==0.13.0
