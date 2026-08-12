@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -100,3 +101,17 @@ class RiskOutput(BaseModel):
 
     flags: list[RiskFlag] = Field(default_factory=list)
     risk_score: float = Field(ge=0.0, le=1.0)
+
+
+class ClaimReport(BaseModel):
+    """Adjudicator contract from PROJECT_SPEC.md §6.6 (Slice 5).
+
+    confidence is a deterministic post-guardrail heuristic in [0, 1] — not a
+    calibrated probability (see DECISIONS.md).
+    """
+
+    decision: Literal["approve", "deny", "needs_review"]
+    confidence: float = Field(ge=0.0, le=1.0)
+    cited_clauses: list[str] = Field(default_factory=list)
+    risk_flags: list[RiskFlag] = Field(default_factory=list)
+    reasoning_summary: str

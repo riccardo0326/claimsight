@@ -6,6 +6,7 @@ import logging
 import uuid
 from datetime import datetime, timezone
 
+from agents.adjudicator import run_adjudicator
 from agents.document_agent import run_document_agent
 from agents.fraud_agent import run_fraud_agent
 from agents.rag_agent import run_rag_agent
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 @celery_app.task(name="worker.tasks.process_claim", bind=True, max_retries=0)
 def process_claim(self, claim_id: str) -> dict:
-    """Load claim, run Document → Vision → Verifiers → RAG → Fraud/Risk, persist."""
+    """Load claim, run Document → Vision → Verifiers → RAG → Fraud/Risk → Adjudicator, persist."""
     db_session.ensure_engine()
     assert db_session.SessionLocal is not None
     db = db_session.SessionLocal()
@@ -68,6 +69,16 @@ def process_claim(self, claim_id: str) -> dict:
             verifier_out,
         )
 
+        adjudication_out = run_adjudicator(
+            narrative=claim.narrative or "",
+            document=output,
+            extraction_meta=meta,
+            vision=vision_out,
+            rag=rag_out,
+            verifiers=verifier_out,
+            risk=risk_out,
+        )
+
         claim.result = {
             "document_agent": doc_dump,
             "extraction_meta": meta,
@@ -75,11 +86,16 @@ def process_claim(self, claim_id: str) -> dict:
             "verifiers": verifier_out.model_dump(mode="json"),
             "rag": rag_out.model_dump(mode="json"),
             "risk": risk_out.model_dump(mode="json"),
+            "adjudication": adjudication_out.model_dump(mode="json"),
         }
         claim.status = ClaimStatus.completed
         claim.updated_at = datetime.now(timezone.utc)
         db.commit()
-        logger.info("Claim %s completed", claim_id)
+        logger.info(
+            "Claim %s completed decision=%s",
+            claim_id,
+            adjudication_out.decision,
+        )
         return {"status": "completed", "claim_id": claim_id}
     except Exception as exc:  # noqa: BLE001 — persist failure then re-raise for Celery logs
         logger.exception("Claim %s failed: %s", claim_id, exc)

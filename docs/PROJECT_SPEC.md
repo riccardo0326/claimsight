@@ -153,10 +153,24 @@ independently testable function/module conforming to this contract.
 
 ### 6.6 Adjudicator
 
-- **Input:** all of the above (`ClaimState` in full)
-- **Output:** `ClaimReport { decision: approve|deny|needs_review, confidence: float, cited_clauses: [clause_id], risk_flags: [...], reasoning_summary: str }`
-- **Hard rule:** `cited_clauses` must be a subset of `RAGOutput.retrieved_clauses` clause_ids. Violation → guardrail rejects output, claim routed to `needs_review`.
-- **HF task:** Text Generation (frontier model)
+- **Input:** narrative + DocumentOutput + extraction_meta + VisionOutput|None +
+  RAGOutput + VerifierOutput + RiskOutput (Celery passes these directly;
+  LangGraph `ClaimState` remains deferred — see `DECISIONS.md`).
+- **Output:** `ClaimReport { decision: approve|deny|needs_review, confidence: float, cited_clauses: [clause_id], risk_flags: [RiskFlag], reasoning_summary: str }`
+  with `0.0 <= confidence <= 1.0`. Confidence is a **deterministic post-guardrail
+  heuristic**, not a calibrated probability (see `DECISIONS.md` D27).
+- **Persistence:** `claim.result.adjudication` (`model_dump(mode="json")`). Claim
+  `status` stays `completed` when the job finishes; human review is
+  `decision=needs_review` (Architecture’s `needs_human_review` status enum is
+  not used in this slice).
+- **Hard rule:** `cited_clauses` must be a subset of `RAGOutput.retrieved_clauses`
+  clause_ids. Violation → guardrail rejects output → `needs_review`.
+- **Approve** requires non-empty retrieved clauses and ≥1 valid citation.
+  Missing evidence / empty Vision detections / verifier `sources_failed` /
+  high `risk_score` alone must not become `deny`.
+- **risk_flags:** copied from upstream `RiskOutput.flags` (not re-inferred).
+- **HF / LLM task:** Text Generation via OpenAI Chat Completions (`httpx`);
+  model from `ADJUDICATOR_MODEL` (default `gpt-4o`).
 
 
 

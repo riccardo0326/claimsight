@@ -1,12 +1,13 @@
 # ClaimSight
 
-Multi-agent insurance claims triage. This repository currently ships **Slices 1–4**:
+Multi-agent insurance claims triage. This repository currently ships **Slices 1–5**:
 ingestion via FastAPI + Celery, Document Agent field extraction, a RAG Agent that
 retrieves policy clauses from Postgres + pgvector (hard-filtered by `policy_id`),
 a Vision Agent for optional damage photos, External Verifiers (NHTSA + Nominatim +
-NWS), and a Fraud/Risk Agent (zero-shot signal + deterministic cross-checks).
+NWS), a Fraud/Risk Agent (zero-shot signal + deterministic cross-checks), and an
+Adjudicator (frontier LLM synthesis + citation grounding guardrails).
 
-Later slices (Adjudicator, LangGraph parallel branching, Langfuse, UI) are
+Later slices (LangGraph parallel branching, Langfuse, eval harness, UI) are
 intentionally out of scope here.
 
 ## Architecture (this slice)
@@ -39,12 +40,19 @@ POST /claims (policy.pdf + estimate.pdf + narrative
                                             └─ weather / recall rules
                                                     │
                                                     ▼
+                                            Adjudicator
+                                            ├─ frontier LLM (OpenAI) proposes ClaimReport
+                                            └─ deterministic citation/schema guardrails
+                                                    │
+                                                    ▼
                               GET /claims/{id}  ◄── completed + document_agent
                                                      + vision + verifiers
-                                                     + rag + risk
+                                                     + rag + risk + adjudication
 ```
 
 Pipeline remains **sequential** Celery (LangGraph parallel branching is deferred).
+Human review is `result.adjudication.decision = needs_review` (claim `status`
+stays `completed`).
 
 ## Prerequisites
 
@@ -110,6 +118,8 @@ When processing finishes, `status` is `completed` and `result` contains:
 - `verifiers` — `VerifierOutput` (NHTSA + optional weather; `sources_failed` on degrade)
 - `rag.retrieved_clauses` — clauses scoped to the claim's `policy_id`
 - `risk` — `RiskOutput` (`flags`, `risk_score` in `[0, 1]`)
+- `adjudication` — `ClaimReport` (`decision`, `confidence`, `cited_clauses`,
+  `risk_flags`, `reasoning_summary`). Human review is `decision=needs_review`.
 
 ## Local development / tests
 
@@ -124,7 +134,7 @@ pip install -e ".[dev]"
 python fixtures/generate_fixtures.py
 python fixtures/generate_image_fixtures.py
 
-# Default suite: offline (no real NHTSA/Nominatim/NWS; no HF downloads)
+# Default suite: offline (no real NHTSA/Nominatim/NWS; no HF; no OpenAI)
 pytest
 
 # Optional real Hugging Face smoke tests
@@ -133,17 +143,25 @@ pytest -m hf
 # Optional real external API tests (network)
 pytest -m live_api
 # or: python scripts/verify_verifiers_live.py
+
+# Optional real Adjudicator frontier LLM (requires OPENAI_API_KEY)
+pytest -m live_llm
+# or: python scripts/verify_adjudicator_live.py
 ```
 
 ## Configuration
 
-See [`.env.example`](.env.example). Slice 4 additions:
+See [`.env.example`](.env.example). Notable settings:
 
 - `FRAUD_ZERO_SHOT_MODEL` — default `typeform/distilbert-base-uncased-mnli`
 - `HTTP_USER_AGENT` — required by Nominatim / NWS
 - `EXTERNAL_API_TIMEOUT_SECONDS` / `EXTERNAL_API_MAX_ATTEMPTS`
 - `NHTSA_CACHE_TTL_HOURS` — VIN/recalls/complaints/geocode TTL (weather has none)
 - `WEATHER_STORM_PRECIP_MM` — storm heuristic threshold
+- `OPENAI_API_KEY` — required for live Adjudicator (never commit)
+- `ADJUDICATOR_MODEL` — default `gpt-4o`
+- `ADJUDICATOR_BASE_URL` — default `https://api.openai.com/v1`
+- `ADJUDICATOR_TIMEOUT_SECONDS` — default `60`
 
 ## Docs
 
@@ -151,4 +169,5 @@ See [`.env.example`](.env.example). Slice 4 additions:
 - [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md)
 - [docs/DECISIONS.md](docs/DECISIONS.md)
 - [docs/VERIFIERS_LIVE_VERIFY.md](docs/VERIFIERS_LIVE_VERIFY.md) — live NHTSA/Nominatim/NWS checks
+- [docs/ADJUDICATOR_LIVE_VERIFY.md](docs/ADJUDICATOR_LIVE_VERIFY.md) — live OpenAI Adjudicator checks
 - [fixtures/images/README.md](fixtures/images/README.md) — manual Vision verification
