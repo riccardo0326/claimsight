@@ -7,6 +7,8 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 from api.config import get_settings
 from api.routes import claims
@@ -16,6 +18,10 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
 )
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+UI_DIR = ROOT_DIR / "ui"
+SAMPLES_DIR = ROOT_DIR / "fixtures"
 
 
 @asynccontextmanager
@@ -38,3 +44,15 @@ app.include_router(claims.router)
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/")
+def root() -> RedirectResponse:
+    return RedirectResponse(url="/ui/")
+
+
+if UI_DIR.is_dir():
+    app.mount("/ui", StaticFiles(directory=str(UI_DIR), html=True), name="ui")
+
+if SAMPLES_DIR.is_dir():
+    app.mount("/samples", StaticFiles(directory=str(SAMPLES_DIR)), name="samples")
