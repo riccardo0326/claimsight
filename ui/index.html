@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ClaimSight — Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/ui/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="top">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <div>
+            <p class="brand-name">ClaimSight</p>
+            <p class="brand-sub">Multi-agent claims triage demo</p>
+          </div>
+        </div>
+        <a class="docs-link" href="/docs" target="_blank" rel="noreferrer">API docs</a>
+      </header>
+
+      <main>
+        <section id="submit-view" class="panel">
+          <h1>Submit a claim</h1>
+          <p class="lede">
+            Same inputs as the CLI demo: policy + estimate PDFs, narrative, optional
+            location and damage photos. Results poll <code>GET /claims/{id}</code>.
+          </p>
+
+          <form id="claim-form" novalidate>
+            <div class="grid-2">
+              <label class="field">
+                <span>Policy PDF</span>
+                <input id="policy_pdf" name="policy_pdf" type="file" accept=".pdf,application/pdf" required />
+              </label>
+              <label class="field">
+                <span>Estimate PDF</span>
+                <input id="estimate_pdf" name="estimate_pdf" type="file" accept=".pdf,application/pdf" required />
+              </label>
+            </div>
+
+            <label class="field">
+              <span>Narrative</span>
+              <textarea
+                id="narrative"
+                name="narrative"
+                rows="3"
+                placeholder="Front-end collision damaged the bumper and headlight; please review collision coverage."
+              ></textarea>
+            </label>
+
+            <label class="field">
+              <span>Incident location <em>(optional)</em></span>
+              <input
+                id="incident_location"
+                name="incident_location"
+                type="text"
+                placeholder="Washington, DC"
+              />
+            </label>
+
+            <label class="field">
+              <span>Damage photos <em>(optional — jpg / png)</em></span>
+              <input
+                id="damage_photos"
+                name="damage_photos"
+                type="file"
+                accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                multiple
+              />
+              <ul id="photo-list" class="file-list" hidden></ul>
+            </label>
+
+            <div class="samples">
+              <p class="samples-label">Quick start with repo fixtures</p>
+              <div class="sample-actions">
+                <button type="button" id="btn-load-sample" class="btn ghost">
+                  Prefill sample narrative + location
+                </button>
+                <a class="btn ghost" href="/samples/sample_policy.pdf" download>Download sample policy.pdf</a>
+                <a class="btn ghost" href="/samples/sample_estimate.pdf" download>Download sample estimate.pdf</a>
+              </div>
+              <p class="hint">
+                Sample damage images live under
+                <code>fixtures/images/</code> (synthetic or <code>real/</code>). Upload them
+                here after downloading locally.
+              </p>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" id="btn-submit" class="btn primary">Run triage</button>
+              <p id="form-error" class="error" hidden></p>
+            </div>
+          </form>
+        </section>
+
+        <section id="result-view" class="panel" hidden>
+          <div class="result-header">
+            <div>
+              <h1>Claim result</h1>
+              <p class="lede mono" id="claim-id-line"></p>
+            </div>
+            <button type="button" id="btn-new" class="btn ghost">Submit another</button>
+          </div>
+
+          <div class="status-row">
+            <span class="status-pill" id="status-pill">pending</span>
+            <span class="poll-note" id="poll-note">Polling every 2s…</span>
+          </div>
+
+          <div id="summary" class="summary" hidden></div>
+
+          <div class="raw-block">
+            <div class="raw-header">
+              <h2>Raw response</h2>
+              <button type="button" id="btn-copy" class="btn ghost small">Copy JSON</button>
+            </div>
+            <pre id="raw-json" class="raw-json">Waiting for claim…</pre>
+          </div>
+        </section>
+      </main>
+
+      <footer class="foot">
+        Serves the live FastAPI demo — not a production claims UI.
+      </footer>
+    </div>
+    <script src="/ui/app.js"></script>
+  </body>
+</html>

@@ -447,3 +447,37 @@ nets. Do not claim live Adjudicator accuracy is CI-gated until a live job
 exists.
 
 Helper: `eval/gate.py`. Dependabot: `package-ecosystem: pip`.
+
+---
+
+## Slice 8 — Langfuse tracing + token/cost capture (2026-08)
+
+Optional observability for claim pipelines. Closes DoD “Langfuse trace per
+`claim_id`” and documents de facto model routing / how to read Adjudicator cost.
+Golden ≥150, RAGAS, LangGraph, and UI polish remain deferred (demo UI may already
+exist on branch — not redesigned here).
+
+### D37. Langfuse is optional / env-gated
+
+**Chose:** Tracing runs only when both `LANGFUSE_PUBLIC_KEY` and
+`LANGFUSE_SECRET_KEY` are set (`LANGFUSE_HOST` defaults to
+`https://cloud.langfuse.com`). Unset keys ⇒ no-op helpers in
+`agents/observability.py`. Tracing exceptions never fail a claim.
+
+Default pytest and CI stay secret-free. Cloud-first — no mandatory Langfuse
+service in Docker Compose (self-host is documented as optional).
+
+### D38. Trace shape: root `process_claim` + per-agent spans
+
+**Chose:** One root span per Celery `process_claim`, metadata/session
+`claim_id`. Child spans: `document`, `vision` (with `skipped` when no photos),
+`verifiers`, `rag`, `fraud_risk`, `adjudicator`. Inputs/outputs are truncated
+summaries (paths, counts, decisions) — not raw PDFs.
+
+### D39. LLM usage on Adjudicator generation only
+
+**Chose:** `agents/llm_openai.complete_json` still returns `str`. When a
+Langfuse context is active it opens a nested **generation**
+(`adjudicator_llm`) and attaches OpenAI `usage` token counts +
+`prompt_version=prompts/adjudicator_v1.md`. Cost/routing narrative lives in
+`docs/COST_ROUTING.md` (HF/local nodes vs frontier Adjudicator).

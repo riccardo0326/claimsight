@@ -41,8 +41,16 @@ class Settings(BaseSettings):
     adjudicator_model: str = "gpt-4o"
     adjudicator_base_url: str = "https://api.openai.com/v1"
     adjudicator_timeout_seconds: float = 60.0
+    # Langfuse observability (Slice 8) — optional; unset keys ⇒ no-op tracing.
+    langfuse_public_key: str | None = None
+    langfuse_secret_key: str | None = None
+    langfuse_host: str = "https://cloud.langfuse.com"
     max_upload_mb: int = 10
     celery_task_always_eager: bool = False
+
+    @property
+    def langfuse_enabled(self) -> bool:
+        return bool(self.langfuse_public_key and self.langfuse_secret_key)
 
 
 @lru_cache

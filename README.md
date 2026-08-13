@@ -1,16 +1,18 @@
 # ClaimSight
 
-Multi-agent insurance claims triage. This repository currently ships **Slices 1–7**:
+Multi-agent insurance claims triage. This repository currently ships **Slices 1–8**:
 ingestion via FastAPI + Celery, Document Agent field extraction, a RAG Agent that
 retrieves policy clauses from Postgres + pgvector (hard-filtered by `policy_id`),
 a Vision Agent for optional damage photos, External Verifiers (NHTSA + Nominatim +
 NWS), a Fraud/Risk Agent (zero-shot signal + deterministic cross-checks), an
 Adjudicator (frontier LLM synthesis + citation grounding guardrails), a
-**golden dataset + offline-first eval harness**, and a **GitHub Actions CI gate**
-(offline pytest + fake golden eval).
+**golden dataset + offline-first eval harness**, a **GitHub Actions CI gate**
+(offline pytest + fake golden eval), and **optional Langfuse tracing** (claim_id
+rooted spans + Adjudicator token usage).
 
-Later slices (LangGraph parallel branching, Langfuse, UI) are intentionally out
-of scope here.
+A lightweight **demo UI** is available at [`http://localhost:8000/ui/`](http://localhost:8000/)
+(static files under `ui/`). Later work (LangGraph parallel branching, golden ≥150,
+UI polish / demo video) remains out of scope here.
 
 ## Architecture (this slice)
 
@@ -55,6 +57,10 @@ Offline eval (Slices 6–7):
   fixtures/golden/manifest.jsonl ──► eval runner ──► Adjudicator+guardrails
                                                  ──► eval/reports/latest.{json,md}
                                                  ──► --gate vs baseline_fake.json (CI)
+
+Observability (Slice 8, optional Langfuse):
+  process_claim ──► spans (document/vision/verifiers/rag/fraud_risk/adjudicator)
+                 ──► generation adjudicator_llm (+ token usage)
 ```
 
 Pipeline remains **sequential** Celery (LangGraph parallel branching is deferred).
@@ -188,6 +194,8 @@ See [`.env.example`](.env.example). Notable settings:
 - `ADJUDICATOR_MODEL` — default `gpt-4o`
 - `ADJUDICATOR_BASE_URL` — default `https://api.openai.com/v1`
 - `ADJUDICATOR_TIMEOUT_SECONDS` — default `60`
+- `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` — optional Slice 8 tracing
+- `LANGFUSE_HOST` — default `https://cloud.langfuse.com`
 
 ## Docs
 
@@ -195,6 +203,8 @@ See [`.env.example`](.env.example). Notable settings:
 - [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md)
 - [docs/DECISIONS.md](docs/DECISIONS.md)
 - [docs/EVAL.md](docs/EVAL.md) — golden eval harness + CI gate (Slices 6–7)
+- [docs/COST_ROUTING.md](docs/COST_ROUTING.md) — model routing + Langfuse cost readout
+- [docs/LANGFUSE_VERIFY.md](docs/LANGFUSE_VERIFY.md) — live Langfuse trace check
 - [docs/VERIFIERS_LIVE_VERIFY.md](docs/VERIFIERS_LIVE_VERIFY.md) — live NHTSA/Nominatim/NWS checks
 - [docs/ADJUDICATOR_LIVE_VERIFY.md](docs/ADJUDICATOR_LIVE_VERIFY.md) — live OpenAI Adjudicator checks
 - [fixtures/images/README.md](fixtures/images/README.md) — manual Vision verification

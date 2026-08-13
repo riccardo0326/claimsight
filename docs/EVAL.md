@@ -10,7 +10,8 @@ Offline-first scoring of **Adjudicator + citation guardrails** against the synth
 | Decision accuracy | Exact match vs `ground_truth.decision` | **Fail if drop > 0.02** vs `eval/reports/baseline_fake.json` |
 | Fraud-flag precision / recall | Material risk flags vs `ground_truth.fraud_flag` | Report only (not gated) |
 
-Deferred: RAGAS/faithfulness CI delta, Langfuse cost/latency, live OpenAI eval in CI, full Celery/HF E2E scoring, golden ≥150.
+Deferred: RAGAS/faithfulness CI delta, live OpenAI eval in CI, full Celery/HF E2E scoring, golden ≥150.
+Adjudicator token cost/latency: see [COST_ROUTING.md](COST_ROUTING.md) and Langfuse (Slice 8) — not CI-gated.
 
 **Accuracy caveat:** `--mode fake` uses an oracle stub keyed to ground truth, so accuracy is usually ~1.0. The accuracy gate protects harness/GT consistency; it is not a live model quality gate (see DECISIONS D36).
 
