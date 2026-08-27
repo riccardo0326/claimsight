@@ -81,8 +81,8 @@ def test_worker_integration_mocked_verifiers_and_fraud(
     def fake_fraud(narrative, document, verifiers, **_kwargs):
         return RiskOutput(flags=[], risk_score=0.12)
 
-    monkeypatch.setattr("worker.tasks.run_verifiers", fake_verifiers)
-    monkeypatch.setattr("worker.tasks.run_fraud_agent", fake_fraud)
+    monkeypatch.setattr("graph.nodes.run_verifiers", fake_verifiers)
+    monkeypatch.setattr("graph.nodes.run_fraud_agent", fake_fraud)
 
     files = {
         "policy_pdf": ("sample_policy.pdf", policy_pdf.read_bytes(), "application/pdf"),
@@ -109,9 +109,9 @@ def test_external_failure_still_completes(client, policy_pdf, estimate_pdf, monk
             weather_at_incident=None,
         )
 
-    monkeypatch.setattr("worker.tasks.run_verifiers", failing_verifiers)
+    monkeypatch.setattr("graph.nodes.run_verifiers", failing_verifiers)
     monkeypatch.setattr(
-        "worker.tasks.run_fraud_agent",
+        "graph.nodes.run_fraud_agent",
         lambda *_a, **_k: RiskOutput(flags=[], risk_score=0.0),
     )
 

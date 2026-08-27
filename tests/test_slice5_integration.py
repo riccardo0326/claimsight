@@ -29,15 +29,15 @@ def test_pipeline_persists_adjudication_key(
         )
 
     monkeypatch.setattr(
-        "worker.tasks.run_verifiers",
+        "graph.nodes.run_verifiers",
         lambda *_a, **_k: VerifierOutput(make="HONDA", model="Accord", model_year=2003),
     )
     monkeypatch.setattr(
-        "worker.tasks.run_fraud_agent",
+        "graph.nodes.run_fraud_agent",
         lambda *_a, **_k: RiskOutput(flags=[], risk_score=0.05),
     )
     monkeypatch.setattr(
-        "worker.tasks.run_rag_agent",
+        "graph.nodes.run_rag_agent",
         lambda **_k: RAGOutput(
             retrieved_clauses=[
                 RetrievedClause(
@@ -48,7 +48,7 @@ def test_pipeline_persists_adjudication_key(
             ]
         ),
     )
-    monkeypatch.setattr("worker.tasks.run_adjudicator", fake_adjudicator)
+    monkeypatch.setattr("graph.nodes.run_adjudicator", fake_adjudicator)
 
     files = {
         "policy_pdf": ("sample_policy.pdf", policy_pdf.read_bytes(), "application/pdf"),
@@ -97,15 +97,15 @@ def test_invalid_citation_persists_needs_review(
         return run_adjudicator(**kwargs, llm_complete=llm_bad)
 
     monkeypatch.setattr(
-        "worker.tasks.run_verifiers",
+        "graph.nodes.run_verifiers",
         lambda *_a, **_k: VerifierOutput(),
     )
     monkeypatch.setattr(
-        "worker.tasks.run_fraud_agent",
+        "graph.nodes.run_fraud_agent",
         lambda *_a, **_k: RiskOutput(flags=[], risk_score=0.0),
     )
     monkeypatch.setattr(
-        "worker.tasks.run_rag_agent",
+        "graph.nodes.run_rag_agent",
         lambda **_k: RAGOutput(
             retrieved_clauses=[
                 RetrievedClause(
@@ -117,7 +117,7 @@ def test_invalid_citation_persists_needs_review(
         ),
     )
     monkeypatch.setattr(
-        "worker.tasks.run_vision_agent",
+        "graph.nodes.run_vision_agent",
         lambda _paths: VisionOutput(
             detections=[],
             severity_tier="minor damage",
@@ -126,7 +126,7 @@ def test_invalid_citation_persists_needs_review(
             low_confidence=False,
         ),
     )
-    monkeypatch.setattr("worker.tasks.run_adjudicator", real_adjudicator)
+    monkeypatch.setattr("graph.nodes.run_adjudicator", real_adjudicator)
 
     files = {
         "policy_pdf": ("sample_policy.pdf", policy_pdf.read_bytes(), "application/pdf"),

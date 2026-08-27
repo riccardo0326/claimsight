@@ -1,18 +1,19 @@
 # ClaimSight
 
-Multi-agent insurance claims triage. This repository currently ships **Slices 1–8**:
+Multi-agent insurance claims triage. This repository currently ships **Slices 1–9**:
 ingestion via FastAPI + Celery, Document Agent field extraction, a RAG Agent that
 retrieves policy clauses from Postgres + pgvector (hard-filtered by `policy_id`),
 a Vision Agent for optional damage photos, External Verifiers (NHTSA + Nominatim +
 NWS), a Fraud/Risk Agent (zero-shot signal + deterministic cross-checks), an
 Adjudicator (frontier LLM synthesis + citation grounding guardrails), a
 **golden dataset + offline-first eval harness**, a **GitHub Actions CI gate**
-(offline pytest + fake golden eval), and **optional Langfuse tracing** (claim_id
-rooted spans + Adjudicator token usage).
+(offline pytest + fake golden eval), **optional Langfuse tracing** (claim_id
+rooted spans + Adjudicator token usage), and a **LangGraph orchestrator**
+(Vision ∥ Document; Verifiers/RAG after Document; Adjudicator join).
 
 A lightweight **demo UI** is available at [`http://localhost:8000/ui/`](http://localhost:8000/)
-(static files under `ui/`). Later work (LangGraph parallel branching, golden ≥150,
-UI polish / demo video) remains out of scope here.
+(static files under `ui/`). Later work (golden ≥150, RAGAS, UI polish / demo video)
+remains out of scope here.
 
 ## Architecture (this slice)
 
@@ -24,31 +25,19 @@ POST /claims (policy.pdf + estimate.pdf + narrative
    FastAPI ──► Postgres (status=pending) ──► Celery/Redis
                                                     │
                                                     ▼
-                                            Document Agent
-                                                    │
-                                                    ▼
-                                              Vision Agent  (skipped if no photos)
-                                                    │
-                                                    ▼
-                                           External Verifiers
-                                            ├─ NHTSA VIN → recalls/complaints
-                                            ├─ Nominatim geocode (if location)
-                                            └─ NWS observations (if location+date)
-                                                    │
-                                                    ▼
-                                              RAG Agent
-                                                    │
-                                                    ▼
-                                           Fraud/Risk Agent
-                                            ├─ zero-shot narrative labels
-                                            └─ weather / recall rules
-                                                    │
-                                                    ▼
-                                            Adjudicator
-                                            ├─ frontier LLM (OpenAI) proposes ClaimReport
-                                            └─ deterministic citation/schema guardrails
-                                                    │
-                                                    ▼
+                                            LangGraph
+                         ┌──────── Document Agent ────────┐
+                         │         ├─ RAG Agent           │
+                         │         └─ External Verifiers  │
+                         │                 └─ Fraud/Risk  │
+                         └──────── Vision Agent ──────────┘
+                                          │
+                                          ▼
+                                    Adjudicator
+                         ├─ frontier LLM (OpenAI) proposes ClaimReport
+                         └─ deterministic citation/schema guardrails
+                                          │
+                                          ▼
                               GET /claims/{id}  ◄── completed + document_agent
                                                      + vision + verifiers
                                                      + rag + risk + adjudication
@@ -63,9 +52,9 @@ Observability (Slice 8, optional Langfuse):
                  ──► generation adjudicator_llm (+ token usage)
 ```
 
-Pipeline remains **sequential** Celery (LangGraph parallel branching is deferred).
-Human review is `result.adjudication.decision = needs_review` (claim `status`
-stays `completed`). Eval scores Adjudicator+guardrails on **canned upstream**
+Pipeline is **LangGraph** inside one Celery job (D40). Human review is
+`result.adjudication.decision = needs_review` (claim `status` stays
+`completed`). Eval scores Adjudicator+guardrails on **canned upstream**
 snapshots (not a full Celery/HF re-run).
 
 ## Prerequisites
@@ -196,6 +185,7 @@ See [`.env.example`](.env.example). Notable settings:
 - `ADJUDICATOR_TIMEOUT_SECONDS` — default `60`
 - `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` — optional Slice 8 tracing
 - `LANGFUSE_HOST` — default `https://cloud.langfuse.com`
+- `GRAPH_MAX_CONCURRENCY` — LangGraph parallel node cap (default `2`; set `1` to serialize HF)
 
 ## Docs
 

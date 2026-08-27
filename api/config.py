@@ -45,6 +45,8 @@ class Settings(BaseSettings):
     langfuse_public_key: str | None = None
     langfuse_secret_key: str | None = None
     langfuse_host: str = "https://cloud.langfuse.com"
+    # LangGraph parallel node cap (Vision ∥ Document). 1 serializes HF nodes.
+    graph_max_concurrency: int = 2
     max_upload_mb: int = 10
     celery_task_always_eager: bool = False
 

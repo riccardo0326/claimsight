@@ -49,6 +49,7 @@ services:
       LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-}
       LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-}
       LANGFUSE_HOST: ${LANGFUSE_HOST:-https://cloud.langfuse.com}
+      GRAPH_MAX_CONCURRENCY: ${GRAPH_MAX_CONCURRENCY:-2}
       MAX_UPLOAD_MB: "10"
       CELERY_TASK_ALWAYS_EAGER: "false"
       HF_HOME: /cache/huggingface
@@ -84,6 +85,7 @@ services:
       LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-}
       LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-}
       LANGFUSE_HOST: ${LANGFUSE_HOST:-https://cloud.langfuse.com}
+      GRAPH_MAX_CONCURRENCY: ${GRAPH_MAX_CONCURRENCY:-2}
       MAX_UPLOAD_MB: "10"
       CELERY_TASK_ALWAYS_EAGER: "false"
       HF_HOME: /cache/huggingface

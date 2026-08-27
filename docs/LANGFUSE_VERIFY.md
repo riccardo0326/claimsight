@@ -27,6 +27,7 @@ curl -X POST http://localhost:8000/claims \
 4. In the Langfuse project UI, find the trace/session with that `claim_id`.
 5. Confirm child spans: `document`, `vision`, `verifiers`, `rag`, `fraud_risk`,
    `adjudicator`, and nested generation `adjudicator_llm` with token usage.
+   Spans wrap LangGraph nodes (Slice 9); names are unchanged from Slice 8.
 
 ## Negative check
 
