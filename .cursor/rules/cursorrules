@@ -11,7 +11,7 @@ back to an older wording of the spec without updating that decision log.
 
 ## 1. Scope discipline
 - Implement only the slice described in the current task prompt.
-- Do not stub unimplemented later work (golden ≥150, RAGAS, UI polish)
+- Do not stub unimplemented later work (golden ≥150, RAGAS, demo video)
   unless the task asks for it.
 
 ## 2. Stack (locked — see PROJECT_SPEC §5)

@@ -44,7 +44,7 @@ code,
 }
 
 .page {
-  width: min(920px, calc(100% - 2rem));
+  width: min(1080px, calc(100% - 2rem));
   margin: 0 auto;
   padding: 1.5rem 0 3rem;
 }
@@ -373,6 +373,130 @@ textarea:focus {
   color: var(--warn);
 }
 
+.reasoning {
+  margin: 0 0 1.25rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg2);
+  color: var(--text);
+}
+
+.citations,
+.agent-panels {
+  margin-bottom: 1.25rem;
+}
+
+.citations h2,
+.agent-panels h2 {
+  margin-bottom: 0.65rem;
+}
+
+.clause-list,
+.plain-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.clause-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.85rem 0.95rem;
+  background: var(--bg2);
+  margin-bottom: 0.6rem;
+}
+
+.clause-card.cited {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+}
+
+.clause-id {
+  margin: 0 0 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.clause-text {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.agent-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 700px) {
+  .agent-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.agent-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg2);
+  padding: 0.15rem 0.85rem 0.85rem;
+}
+
+.agent-card > summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.7rem 0;
+  list-style: none;
+}
+
+.agent-card > summary::-webkit-details-marker {
+  display: none;
+}
+
+.kv {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+}
+
+.kv span:first-child {
+  color: var(--muted);
+}
+
+.kv span:last-child {
+  text-align: right;
+  word-break: break-word;
+}
+
+.mini-label {
+  margin: 0.65rem 0 0.25rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.plain-list li {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.muted {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.langfuse-hint {
+  margin-top: 0.75rem;
+}
+
 .raw-block {
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -387,6 +511,17 @@ textarea:focus {
   padding: 0.7rem 0.9rem;
   border-bottom: 1px solid var(--line);
   background: var(--bg1);
+}
+
+.raw-block details {
+  padding: 0 0.9rem 0.75rem;
+}
+
+.raw-block summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 0.65rem 0 0.35rem;
 }
 
 .raw-json {

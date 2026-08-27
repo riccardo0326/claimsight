@@ -83,6 +83,9 @@
                 <button type="button" id="btn-load-sample" class="btn ghost">
                   Prefill sample narrative + location
                 </button>
+                <button type="button" id="btn-preview-result" class="btn ghost">
+                  Preview sample result
+                </button>
                 <a class="btn ghost" href="/samples/sample_policy.pdf" download>Download sample policy.pdf</a>
                 <a class="btn ghost" href="/samples/sample_estimate.pdf" download>Download sample estimate.pdf</a>
               </div>
@@ -116,12 +119,32 @@
 
           <div id="summary" class="summary" hidden></div>
 
+          <p id="reasoning" class="reasoning" hidden></p>
+
+          <section id="citations" class="citations" hidden>
+            <h2>Cited clauses</h2>
+            <p class="hint" id="citations-empty" hidden>No citations on this report.</p>
+            <ul id="citation-list" class="clause-list"></ul>
+          </section>
+
+          <section id="agent-panels" class="agent-panels" hidden>
+            <h2>Agent outputs</h2>
+            <div id="agent-grid" class="agent-grid"></div>
+            <p class="hint langfuse-hint">
+              If Langfuse keys are set on the worker, search traces by this
+              <code>claim_id</code>.
+            </p>
+          </section>
+
           <div class="raw-block">
             <div class="raw-header">
-              <h2>Raw response</h2>
+              <h2>Raw JSON</h2>
               <button type="button" id="btn-copy" class="btn ghost small">Copy JSON</button>
             </div>
-            <pre id="raw-json" class="raw-json">Waiting for claim…</pre>
+            <details id="raw-details">
+              <summary>Show payload</summary>
+              <pre id="raw-json" class="raw-json">Waiting for claim…</pre>
+            </details>
           </div>
         </section>
       </main>

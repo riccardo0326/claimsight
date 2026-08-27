@@ -12,8 +12,10 @@ rooted spans + Adjudicator token usage), and a **LangGraph orchestrator**
 (Vision ∥ Document; Verifiers/RAG after Document; Adjudicator join).
 
 A lightweight **demo UI** is available at [`http://localhost:8000/ui/`](http://localhost:8000/)
-(static files under `ui/`). Later work (golden ≥150, RAGAS, UI polish / demo video)
-remains out of scope here.
+(static files under `ui/`). After a claim completes it shows the decision,
+reasoning, cited clause text, and per-agent panels (raw JSON stays collapsed).
+Later work (golden ≥150, RAGAS / live faithfulness, demo video) remains out of
+scope here.
 
 ## Architecture (this slice)
 
