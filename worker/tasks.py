@@ -6,14 +6,11 @@ import logging
 import uuid
 from datetime import datetime, timezone
 
-from agents.adjudicator import run_adjudicator
-from agents.document_agent import run_document_agent
-from agents.fraud_agent import run_fraud_agent
-from agents.rag_agent import run_rag_agent
-from agents.verifiers import run_verifiers
-from agents.vision_agent import run_vision_agent
+from agents.observability import trace_claim
 from db.models import Claim, ClaimStatus
 from db import session as db_session
+from graph.claim_graph import invoke_claim_graph, result_from_state
+from graph.state import ClaimState
 from worker.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
@@ -21,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 @celery_app.task(name="worker.tasks.process_claim", bind=True, max_retries=0)
 def process_claim(self, claim_id: str) -> dict:
-    """Load claim, run Document → Vision → Verifiers → RAG → Fraud/Risk → Adjudicator, persist."""
+    """Load claim, invoke LangGraph, persist result (status=completed on success)."""
     db_session.ensure_engine()
     assert db_session.SessionLocal is not None
     db = db_session.SessionLocal()
@@ -41,62 +38,25 @@ def process_claim(self, claim_id: str) -> dict:
         claim.updated_at = datetime.now(timezone.utc)
         db.commit()
 
-        policy_path = claim.input_paths["policy_pdf"]
-        estimate_path = claim.input_paths["estimate_pdf"]
-
-        output, meta = run_document_agent(policy_path, estimate_path)
-        doc_dump = output.model_dump(mode="json")
-
         image_paths = claim.input_paths.get("damage_photos") or []
-        vision_out = run_vision_agent(image_paths) if image_paths else None
-
-        verifier_out = run_verifiers(
-            output,
-            incident_location=claim.incident_location,
-            db=db,
-        )
-
-        rag_out = run_rag_agent(
-            policy_id=output.policy_id or "",
-            narrative=claim.narrative or "",
-            extracted_fields=doc_dump,
-            db=db,
-        )
-
-        risk_out = run_fraud_agent(
-            claim.narrative or "",
-            output,
-            verifier_out,
-        )
-
-        adjudication_out = run_adjudicator(
-            narrative=claim.narrative or "",
-            document=output,
-            extraction_meta=meta,
-            vision=vision_out,
-            rag=rag_out,
-            verifiers=verifier_out,
-            risk=risk_out,
-        )
-
-        claim.result = {
-            "document_agent": doc_dump,
-            "extraction_meta": meta,
-            "vision": vision_out.model_dump(mode="json") if vision_out else None,
-            "verifiers": verifier_out.model_dump(mode="json"),
-            "rag": rag_out.model_dump(mode="json"),
-            "risk": risk_out.model_dump(mode="json"),
-            "adjudication": adjudication_out.model_dump(mode="json"),
+        initial: ClaimState = {
+            "claim_id": claim_id,
+            "narrative": claim.narrative or "",
+            "incident_location": claim.incident_location,
+            "policy_pdf": claim.input_paths["policy_pdf"],
+            "estimate_pdf": claim.input_paths["estimate_pdf"],
+            "image_paths": image_paths,
         }
-        claim.status = ClaimStatus.completed
-        claim.updated_at = datetime.now(timezone.utc)
-        db.commit()
-        logger.info(
-            "Claim %s completed decision=%s",
-            claim_id,
-            adjudication_out.decision,
-        )
-        return {"status": "completed", "claim_id": claim_id}
+
+        with trace_claim(claim_id):
+            final = invoke_claim_graph(initial, db=db)
+            claim.result = result_from_state(final)
+            claim.status = ClaimStatus.completed
+            claim.updated_at = datetime.now(timezone.utc)
+            db.commit()
+            decision = final["adjudication"].decision
+            logger.info("Claim %s completed decision=%s", claim_id, decision)
+            return {"status": "completed", "claim_id": claim_id}
     except Exception as exc:  # noqa: BLE001 — persist failure then re-raise for Celery logs
         logger.exception("Claim %s failed: %s", claim_id, exc)
         db.rollback()

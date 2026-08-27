@@ -261,16 +261,15 @@ Source-level failures populate `sources_failed` with stable ids
 
 Empty narrative → no classifier flags; rules may still fire.
 
-### D21. LangGraph remains deferred
+### D21. LangGraph deferred until Slice 9
 
-Architecture still targets a LangGraph orchestrator with parallel Vision ∥
-Document ∥ Verifiers. Slice 4 keeps the Celery task sequential:
+Architecture still targeted a LangGraph orchestrator with parallel Vision ∥
+Document. Slices 3–8 kept the Celery task sequential:
 
-`Document → Vision → Verifiers → RAG → Fraud/Risk → persist`
+`Document → Vision → Verifiers → RAG → Fraud/Risk → Adjudicator → persist`
 
-(Slice 5 appends Adjudicator — see D29.)
-
-Fraud/Risk does not depend on RAG. True parallel branching stays a later slice.
+Fraud/Risk does not depend on RAG. True parallel branching landed in Slice 9
+(D40–D42).
 
 ### D22. Result keys `verifiers` + `risk`
 
@@ -342,13 +341,13 @@ LLM self-reported confidence is ignored for the persisted value.
   `inconsistent claim`) block approve → `needs_review`.
 - Low-confidence critical extraction blocks approve → `needs_review`.
 
-### D29. Celery order after Slice 5
+### D29. Celery order after Slice 5 (superseded by Slice 9)
 
 `Document → Vision → Verifiers → RAG → Fraud/Risk → Adjudicator → guardrails → persist`
 
-LangGraph remains deferred (D21). LLM/schema/guardrail failures persist
-`adjudication.decision=needs_review` and keep claim `status=completed` — they do
-not fail the claim.
+LangGraph remained deferred until Slice 9 (D21 / D40). LLM/schema/guardrail
+failures persist `adjudication.decision=needs_review` and keep claim
+`status=completed` — they do not fail the claim.
 
 Prompt template: `prompts/adjudicator_v1.md`. Live verify:
 `python scripts/verify_adjudicator_live.py` / `pytest -m live_llm`.
@@ -359,7 +358,7 @@ Prompt template: `prompts/adjudicator_v1.md`. Live verify:
 
 Completes the unfinished half of PROJECT_SPEC milestone 4: a synthetic golden
 set (~50) and a first measurable Adjudicator eval run. Langfuse, CI gates,
-LangGraph, RAGAS, and UI remain deferred.
+LangGraph (Slice 9), RAGAS, and UI were still ahead at the time.
 
 ### D30. Eval surface is Adjudicator + guardrails on canned upstream
 
@@ -412,8 +411,8 @@ Package: `eval/` (`schema`, `metrics`, `runner`, `report`). Docs:
 ## Slice 7 — CI Eval Gate (2026-08)
 
 Wires the Slice 6 harness into GitHub Actions as an offline-first PR/main gate.
-Langfuse, model routing/cost docs, live OpenAI CI, RAGAS, LangGraph, and UI
-remain deferred.
+Langfuse, model routing/cost docs, live OpenAI CI, RAGAS, LangGraph (until
+Slice 9), and UI remain deferred.
 
 ### D34. Offline CI only (no secrets)
 
@@ -447,3 +446,84 @@ nets. Do not claim live Adjudicator accuracy is CI-gated until a live job
 exists.
 
 Helper: `eval/gate.py`. Dependabot: `package-ecosystem: pip`.
+
+---
+
+## Slice 8 — Langfuse tracing + token/cost capture (2026-08)
+
+Optional observability for claim pipelines. Closes DoD “Langfuse trace per
+`claim_id`” and documents de facto model routing / how to read Adjudicator cost.
+Golden ≥150, RAGAS, and UI polish remain deferred (demo UI may already
+exist on branch — not redesigned here). LangGraph landed in Slice 9.
+
+### D37. Langfuse is optional / env-gated
+
+**Chose:** Tracing runs only when both `LANGFUSE_PUBLIC_KEY` and
+`LANGFUSE_SECRET_KEY` are set (`LANGFUSE_HOST` defaults to
+`https://cloud.langfuse.com`). Unset keys ⇒ no-op helpers in
+`agents/observability.py`. Tracing exceptions never fail a claim.
+
+Default pytest and CI stay secret-free. Cloud-first — no mandatory Langfuse
+service in Docker Compose (self-host is documented as optional).
+
+### D38. Trace shape: root `process_claim` + per-agent spans
+
+**Chose:** One root span per Celery `process_claim`, metadata/session
+`claim_id`. Child spans: `document`, `vision` (with `skipped` when no photos),
+`verifiers`, `rag`, `fraud_risk`, `adjudicator`. Inputs/outputs are truncated
+summaries (paths, counts, decisions) — not raw PDFs.
+
+### D39. LLM usage on Adjudicator generation only
+
+**Chose:** `agents/llm_openai.complete_json` still returns `str`. When a
+Langfuse context is active it opens a nested **generation**
+(`adjudicator_llm`) and attaches OpenAI `usage` token counts +
+`prompt_version=prompts/adjudicator_v1.md`. Cost/routing narrative lives in
+`docs/COST_ROUTING.md` (HF/local nodes vs frontier Adjudicator).
+
+---
+
+## Slice 9 — LangGraph orchestrator (2026-08)
+
+Replaces the sequential Celery agent body with a compiled LangGraph
+`ClaimState` machine. Agent contracts, `claim.result` keys, eval, and the
+static UI are unchanged.
+
+### D40. Honest DAG: Verifiers wait on Document
+
+**Architecture §3 previously said:** Vision + Document + External Verifiers
+start in parallel.
+
+**Chose:** Verifiers take VIN / incident date from `DocumentOutput` (spec
+§6.5), so they cannot start with Document.
+
+```
+START
+  ├─ vision ──────────────────────────────────┐
+  └─ document ─┬─ rag ────────────────────────┤
+               └─ verifiers ─ fraud_risk ─────┴─ adjudicator → persist (Celery)
+```
+
+Vision no longer waits on Document. RAG no longer waits on Vision/Verifiers.
+Fraud/Risk still waits on Verifiers. Adjudicator joins Vision + RAG +
+Fraud/Risk. Persist stays in Celery after `graph.invoke` returns.
+
+### D41. No checkpointer; DB session via invoke config
+
+**Chose:** Compile without a Postgres/Sqlite checkpointer. Pass the
+SQLAlchemy session as `config["configurable"]["db"]` — not as ClaimState
+(sessions are not serializable). No HITL interrupt/resume in this slice.
+
+### D42. `GRAPH_MAX_CONCURRENCY` (default 2)
+
+Worker Celery `--concurrency=1` already limits one claim per process.
+LangGraph may still run Vision ∥ Document on threads in that process, which
+can OOM two HF stacks. Env `GRAPH_MAX_CONCURRENCY` (default 2) caps parallel
+nodes; set `1` to serialize while keeping the DAG for tests.
+
+Langfuse span names stay D38 (`document`, `vision`, `verifiers`, `rag`,
+`fraud_risk`, `adjudicator`) and now wrap graph nodes rather than the old
+sequential Celery body.
+
+Golden ≥150, RAGAS, UI polish, TableQA, precedents, and live OpenAI CI remain
+deferred.

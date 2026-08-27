@@ -84,7 +84,7 @@ def _patch_fake_docvqa(monkeypatch, fake_extractor):
         lambda: fake_extractor,
     )
     monkeypatch.setattr(
-        "worker.tasks.run_document_agent",
+        "graph.nodes.run_document_agent",
         lambda policy, estimate: __import__(
             "agents.document_agent", fromlist=["run_document_agent"]
         ).run_document_agent(policy, estimate, extractor=fake_extractor),
@@ -113,24 +113,24 @@ def _make_api_client(
     _patch_fake_docvqa(monkeypatch, fake_extractor)
     # SQLite has no pgvector — stub RAG so Slice 1 paths still complete.
     monkeypatch.setattr(
-        "worker.tasks.run_rag_agent",
+        "graph.nodes.run_rag_agent",
         lambda **_kwargs: RAGOutput(retrieved_clauses=[]),
     )
     if stub_vision:
         # Keep default pytest fast — Vision HF models are behind pytest -m hf.
-        monkeypatch.setattr("worker.tasks.run_vision_agent", lambda _paths: None)
+        monkeypatch.setattr("graph.nodes.run_vision_agent", lambda _paths: None)
     # External APIs + fraud HF model — stubbed for default offline suite.
     monkeypatch.setattr(
-        "worker.tasks.run_verifiers",
+        "graph.nodes.run_verifiers",
         lambda *_args, **_kwargs: VerifierOutput(),
     )
     monkeypatch.setattr(
-        "worker.tasks.run_fraud_agent",
+        "graph.nodes.run_fraud_agent",
         lambda *_args, **_kwargs: RiskOutput(flags=[], risk_score=0.0),
     )
     # Frontier LLM — stubbed for default offline suite (empty RAG ⇒ review).
     monkeypatch.setattr(
-        "worker.tasks.run_adjudicator",
+        "graph.nodes.run_adjudicator",
         lambda **_kwargs: ClaimReport(
             decision="needs_review",
             confidence=0.35,
@@ -245,15 +245,15 @@ def rag_client(tmp_path, monkeypatch, fake_extractor, pgvector_url, expected):
 
     # Offline stubs for Slice 4/5 (real HTTP/HF/LLM covered in dedicated tests).
     monkeypatch.setattr(
-        "worker.tasks.run_verifiers",
+        "graph.nodes.run_verifiers",
         lambda *_args, **_kwargs: VerifierOutput(),
     )
     monkeypatch.setattr(
-        "worker.tasks.run_fraud_agent",
+        "graph.nodes.run_fraud_agent",
         lambda *_args, **_kwargs: RiskOutput(flags=[], risk_score=0.0),
     )
     monkeypatch.setattr(
-        "worker.tasks.run_adjudicator",
+        "graph.nodes.run_adjudicator",
         lambda **_kwargs: ClaimReport(
             decision="needs_review",
             confidence=0.35,

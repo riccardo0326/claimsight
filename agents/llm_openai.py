@@ -2,11 +2,15 @@
 
 No official OpenAI SDK — keeps the dependency surface aligned with Slice 4
 external HTTP (httpx + Tenacity). See DECISIONS.md.
+
+Slice 8: when a Langfuse trace context is active, records a generation with
+token usage. complete_json still returns only the assistant content string.
 """
 
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any
 
 import httpx
@@ -17,9 +21,16 @@ from tenacity import (
     wait_exponential,
 )
 
+from agents.observability import (
+    generation,
+    parse_openai_usage,
+    record_generation_usage,
+)
 from api.config import get_settings
 
 logger = logging.getLogger(__name__)
+
+PROMPT_VERSION = "prompts/adjudicator_v1.md"
 
 
 class LLMError(Exception):
@@ -82,7 +93,7 @@ def complete_json(
                 (httpx.TimeoutException, httpx.TransportError, LLMRetryableError)
             ),
         )
-        def _once() -> str:
+        def _once() -> tuple[str, dict[str, Any]]:
             try:
                 resp = http.post(url, headers=headers, json=payload, timeout=use_timeout)
             except (httpx.TimeoutException, httpx.TransportError):
@@ -102,13 +113,33 @@ def complete_json(
             content = message.get("content")
             if not isinstance(content, str) or not content.strip():
                 raise LLMError("LLM response missing message content")
-            return content
+            return content, data if isinstance(data, dict) else {}
 
-        try:
-            return _once()
-        except (httpx.TimeoutException, httpx.TransportError) as exc:
-            logger.exception("Adjudicator LLM transport failure")
-            raise LLMError(str(exc)) from exc
+        started = time.perf_counter()
+        with generation(
+            "adjudicator_llm",
+            model=use_model,
+            input=messages,
+            metadata={"prompt_version": PROMPT_VERSION},
+        ) as gen:
+            try:
+                content, data = _once()
+            except (httpx.TimeoutException, httpx.TransportError) as exc:
+                logger.exception("Adjudicator LLM transport failure")
+                raise LLMError(str(exc)) from exc
+            elapsed_ms = int((time.perf_counter() - started) * 1000)
+            usage = parse_openai_usage(data)
+            record_generation_usage(
+                gen,
+                output=content,
+                usage=usage,
+                model=use_model,
+                metadata={
+                    "prompt_version": PROMPT_VERSION,
+                    "latency_ms": elapsed_ms,
+                },
+            )
+            return content
     finally:
         if owns_client:
             http.close()

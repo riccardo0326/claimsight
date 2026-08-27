@@ -83,12 +83,14 @@ single prompt-in/response-out wrapper.
 
 ### 2.2 LangGraph Orchestrator
 - Implemented as an explicit state graph, not a free-form agent loop.
-- Shared `ClaimState` object (typed, e.g. Pydantic/TypedDict) is passed
-  between nodes and accumulates each agent's output.
-- Nodes with no data dependency (Vision, Document, external verifiers) run
-  in parallel branches; RAG and Fraud/Risk nodes depend on Document Agent
-  output (need extracted fields before retrieval/scoring); Adjudicator is
-  the single terminal node.
+- Shared `ClaimState` TypedDict is passed between nodes and accumulates each
+  agent's Pydantic output. Celery still owns claim load / persist; the graph
+  is the in-process orchestrator invoked by `process_claim`.
+- **Honest DAG (Slice 9):** Vision ∥ Document from START. Verifiers and RAG
+  wait for Document (VIN/date and extracted fields). Fraud/Risk waits for
+  Verifiers. Adjudicator joins Vision + RAG + Fraud/Risk. Architecture’s
+  earlier “Vision ∥ Document ∥ Verifiers” wording was wrong — Verifiers need
+  DocumentOutput (see `DECISIONS.md` D40).
 - Explicit graph (vs. a general ReAct agent) is a deliberate choice:
   deterministic control flow, cheaper to debug, and each node is
   independently unit-testable.
@@ -163,15 +165,14 @@ single prompt-in/response-out wrapper.
 ## 3. Data Flow (state machine)
 
 1. `submitted` → ingestion validates files, creates claim record
-2. `processing` → orchestrator invokes Vision + Document + External
-   Verifier nodes in parallel
-3. Document Agent output unblocks RAG Agent and Fraud/Risk Agent
-4. All branches join → Adjudicator node runs
-5. Guardrail check runs on Adjudicator output
-6. `completed` (with decision) or `needs_human_review` (low confidence /
-   guardrail failure)
-7. Report + full trace persisted; claim record updated; frontend polls or
-   subscribes for status
+2. `processing` → Celery invokes LangGraph: Vision ∥ Document
+3. Document Agent output unblocks RAG and External Verifiers; Verifiers
+   unblock Fraud/Risk
+4. Vision + RAG + Fraud/Risk join → Adjudicator node runs
+5. Guardrail check runs on Adjudicator output (inside the Adjudicator node)
+6. `completed` with `result.adjudication` (human review is
+   `decision=needs_review`; claim status is not `needs_human_review` — D25)
+7. Report + Langfuse trace persisted; frontend polls `GET /claims/{id}`
 
 ## 4. Scalability Considerations
 - Celery workers scale horizontally; vision/document extraction nodes are

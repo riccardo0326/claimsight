@@ -154,8 +154,8 @@ independently testable function/module conforming to this contract.
 ### 6.6 Adjudicator
 
 - **Input:** narrative + DocumentOutput + extraction_meta + VisionOutput|None +
-  RAGOutput + VerifierOutput + RiskOutput (Celery passes these directly;
-  LangGraph `ClaimState` remains deferred — see `DECISIONS.md`).
+  RAGOutput + VerifierOutput + RiskOutput (LangGraph `ClaimState`; Celery
+  invokes the compiled graph — see `DECISIONS.md` Slice 9).
 - **Output:** `ClaimReport { decision: approve|deny|needs_review, confidence: float, cited_clauses: [clause_id], risk_flags: [RiskFlag], reasoning_summary: str }`
   with `0.0 <= confidence <= 1.0`. Confidence is a **deterministic post-guardrail
   heuristic**, not a calibrated probability (see `DECISIONS.md` D27).
