@@ -157,10 +157,10 @@ single prompt-in/response-out wrapper.
   strings, so eval runs can be diffed across prompt versions.
 
 ### 2.9 Frontend
-- Displays: claim intake summary, per-agent output, retrieved citations
-  (with source clause text), final decision with confidence, and the full
-  agent trace (for debugging/demo purposes).
-- Built last, once real pipeline output exists to design against.
+- Displays: claim intake, decision with confidence, reasoning, cited clauses
+  (with retrieved source text), per-agent output, and raw JSON for debugging.
+- Static files under `ui/` served by FastAPI (`/ui/`). Built against live
+  pipeline output (Slice 11). Demo video is optional.
 
 ## 3. Data Flow (state machine)
 

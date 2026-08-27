@@ -1,0 +1,75 @@
+{
+  "claim_id": "00000000-0000-0000-0000-000000000001",
+  "status": "completed",
+  "created_at": "2026-08-27T10:00:00+00:00",
+  "updated_at": "2026-08-27T10:00:08+00:00",
+  "result": {
+    "document_agent": {
+      "policy_id": "POL-2024-0098213",
+      "coverage_limits": {
+        "collision": 50000.0,
+        "comprehensive": 25000.0,
+        "liability": 100000.0
+      },
+      "deductible": 1000.0,
+      "vin": "1HGCM82633A004352",
+      "incident_date": "2024-03-14",
+      "line_items": [
+        { "description": "Front bumper replacement", "cost": 850.0 },
+        { "description": "Headlight assembly", "cost": 420.5 }
+      ]
+    },
+    "extraction_meta": {
+      "confidences": { "policy_id": 0.99, "vin": 0.98 },
+      "low_confidence_fields": [],
+      "min_confidence": 0.5
+    },
+    "vision": {
+      "detections": [
+        { "label": "damaged car", "confidence": 0.72, "image_path": "fixtures/images/synthetic_front.jpg" }
+      ],
+      "severity_tier": "moderate damage",
+      "severity_confidence": 0.68,
+      "vqa_answers": {},
+      "low_confidence": false
+    },
+    "verifiers": {
+      "make": "HONDA",
+      "model": "Accord",
+      "model_year": 2003,
+      "nhtsa_recalls": [],
+      "nhtsa_complaints": [],
+      "weather_at_incident": {
+        "condition": "Light Rain",
+        "precipitation_mm": 2.0,
+        "had_storm_event": false
+      },
+      "sources_failed": []
+    },
+    "rag": {
+      "retrieved_clauses": [
+        {
+          "clause_id": "COL-001",
+          "text": "Collision coverage pays for direct and accidental loss to your covered auto caused by collision with another object or by upset of the auto, subject to the deductible shown on the declarations page.",
+          "similarity_score": 0.91
+        },
+        {
+          "clause_id": "COL-002",
+          "text": "Under collision coverage, we will pay the lesser of the actual cash value of the damaged property or the amount necessary to repair or replace it.",
+          "similarity_score": 0.84
+        }
+      ]
+    },
+    "risk": {
+      "flags": [],
+      "risk_score": 0.05
+    },
+    "adjudication": {
+      "decision": "approve",
+      "confidence": 0.8,
+      "cited_clauses": ["COL-001"],
+      "risk_flags": [],
+      "reasoning_summary": "Collision coverage applies to this front-end impact. COL-001 supports paying the accidental collision loss after the deductible."
+    }
+  }
+}

@@ -525,5 +525,17 @@ Langfuse span names stay D38 (`document`, `vision`, `verifiers`, `rag`,
 `fraud_risk`, `adjudicator`) and now wrap graph nodes rather than the old
 sequential Celery body.
 
-Golden ≥150, RAGAS, UI polish, TableQA, precedents, and live OpenAI CI remain
-deferred.
+Golden ≥150, RAGAS, TableQA, precedents, and live OpenAI CI remain deferred.
+
+---
+
+## Slice 11 — Demo UI polish (2026-08)
+
+Kept the existing static `/ui/` (no Next.js). Claim result view now shows
+reasoning, cited clauses with retrieved source text, and collapsible
+per-agent panels. Raw JSON is still available but collapsed by default.
+
+### D47. Static UI, no new frontend stack
+
+**Chose:** Extend `ui/index.html` + `app.js` + `styles.css` served by FastAPI.
+Do not add Next.js or Streamlit. Demo video remains optional / out of slice.
