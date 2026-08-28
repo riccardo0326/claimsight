@@ -1,7 +1,7 @@
 fastapi==0.115.12
 uvicorn[standard]==0.34.2
 python-multipart==0.0.31
-celery[redis]==5.5.2
+celery[redis]==5.6.3
 redis==5.2.1
 sqlalchemy==2.0.40
 psycopg2-binary==2.9.10
